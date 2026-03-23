@@ -1,6 +1,6 @@
 import HeroContent from "@/components/home/hero-section/HeroContent";
 import { HeroSection } from "@/components/home/hero-section/HeroSection";
-import { Navbar } from "@/components/home/header/Navbar";
+import { Header } from "@/components/home/header/Header";
 import HiringMetricsSection from "@/components/home/metrics-section/HiringMetricsSection";
 import ReviewsSection from "@/components/home/reviews-section/ReviewsSection";
 import BrandsSection from "@/components/home/marquee-section/BrandsSection";
@@ -13,7 +13,7 @@ import { FAQS_DATA } from "@/constants/FAQSData";
 export default function Home() {
   return (
     <>
-      <Navbar />
+      <Header />
       <main>
         <HeroSection>
           <div className="pt-20 sm:pt-18">

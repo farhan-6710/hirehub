@@ -15,16 +15,18 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(50.814% 0.10493 165.642);
   --primary-foreground: oklch(100% 0.00011 271.152);
+  --secondary: oklch(90.487% 0.037 168.465);
+  --secondary-foreground: oklch(0.696 0.17 162.48);
   --glow-green-bg: oklch(95.046% 0.05071 163.166 / 0.298);
   --glow-purple-bg: oklch(95.046% 0.05071 263.166 / 0.298);
   --glw-blue-bg: oklch(95.046% 0.05071 203.166 / 0.298);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(92.758% 0.00592 264.656);
   --muted-foreground: oklch(55.102% 0.02343 264.389);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* destructive (mirrors secondary/secondary-foreground but in red hue) */
+  --destructive: oklch(90.487% 0.037 27.325);
+  --destructive-foreground: oklch(0.696 0.17 27.325);
   --border: oklch(87.168% 0.00944 258.479);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -54,18 +56,20 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: #059669;
-  --primary-foreground: #022c22;
+  --primary: oklch(59.598% 0.12741 163.254);
+  --primary-foreground: oklab(26.21% -0.04834 0.00629);
+  --secondary: oklch(25.909% 0.04123 163.104);
+  --secondary-foreground: oklch(0.696 0.17 162.48);
   --glow-green-bg: oklch(23.397% 0.02779 162.934 / 0.749);
   --glow-purple-bg: oklch(23.397% 0.02779 262.934 / 0.749);
   --glw-blue-bg: oklch(23.505% 0.02811 203.332);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(25.376% 0.0096 248.279);
   --muted-foreground: oklch(71.366% 0.01926 261.373);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* destructive (mirrors secondary/secondary-foreground but in red hue) */
+  --destructive: oklch(25.909% 0.04123 27.325);
+  --destructive-foreground: oklch(0.696 0.17 27.325);
   --border: oklch(26.209% 0.00952 248.267);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);

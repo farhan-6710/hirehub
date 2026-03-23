@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { label: "Contact", href: "#contact" },
 ];
 
-export function Navbar() {
+export function Header() {
   const [isAiAssistantOpen, setIsAiAssistantOpen] = React.useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = React.useState(false);
   const actionButtonClass =
