@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { jobs } from "@/constants/jobs";
 import { JobApplyPanel } from "@/components/jobs/job-details-section/JobApplyPanel";
 import { JobDetailsSection } from "@/components/jobs/job-details-section/JobDetailsSection";
+import { PageBackgroundWrapper } from "@/components/shared/PageBackgroundWrapper";
 
 export default async function JobDetailsPage({
   params,
@@ -16,8 +17,8 @@ export default async function JobDetailsPage({
   if (!job) notFound();
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageBackgroundWrapper>
       <JobDetailsSection job={job} rightPanel={<JobApplyPanel />} />
-    </div>
+    </PageBackgroundWrapper>
   );
 }

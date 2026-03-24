@@ -1,22 +1,18 @@
 "use client";
 
 import * as React from "react";
-
 import { JobsListingSection } from "@/components/jobs/jobs-listing-section/JobsListingSection";
-import { JobsPageHeader } from "@/components/jobs/JobsPageHeader";
 import { PageBackgroundWrapper } from "@/components/shared/PageBackgroundWrapper";
+import { JobHeaderContext } from "./layout";
 
 export default function JobsPage() {
-  const [headerHeight, setHeaderHeight] = React.useState(0);
+  const { headerHeight } = React.useContext(JobHeaderContext);
 
   return (
     <PageBackgroundWrapper>
-      <JobsPageHeader onHeightChange={setHeaderHeight} />
-      <main>
-        <JobsListingSection
-          stickyTopPx={headerHeight > 0 ? headerHeight + 32 : undefined}
-        />
-      </main>
+      <JobsListingSection
+        stickyTopPx={headerHeight > 0 ? headerHeight + 32 : undefined}
+      />
     </PageBackgroundWrapper>
   );
 }

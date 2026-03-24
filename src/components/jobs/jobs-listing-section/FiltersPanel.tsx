@@ -4,19 +4,10 @@ import { Search01Icon, Location01Icon } from "@hugeicons/core-free-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { EXPERIENCE_LEVELS, JOB_TYPES, type Job } from "@/types/jobs/jobs";
+import { titleize } from "@/utils/jobs/utils";
+import { EXPERIENCE_LEVELS, JOB_TYPES } from "@/types/jobs/jobs";
+import type { FiltersPanelProps } from "@/types/jobs/components";
 import { useJobsFilters } from "@/hooks/useJobsFilters";
-
-const titleize = (value: string) =>
-  value
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("-");
-
-interface FiltersPanelProps {
-  jobs: Job[];
-  onFilterChange: React.Dispatch<React.SetStateAction<Job[]>>;
-}
 
 export function FiltersPanel({ jobs, onFilterChange }: FiltersPanelProps) {
   const {

@@ -17,7 +17,7 @@ export const EXPERIENCE_LEVELS = [
 
 export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 
-export const JOB_STATUSES = ["open", "closed", "draft"] as const;
+export const JOB_STATUSES = ["open", "closed", "draft", "applied"] as const;
 
 export type JobStatus = (typeof JOB_STATUSES)[number];
 
