@@ -4,6 +4,8 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/redux/store";
 import { ThemeProvider } from "./ThemeProvider";
+import { AuthProvider } from "./authContext";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function AppProviders({
   children,
@@ -19,7 +21,10 @@ export default function AppProviders({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>
+            {children}
+            <Toaster position="top-right" richColors closeButton />
+          </AuthProvider>
         </ThemeProvider>
       </PersistGate>
     </Provider>

@@ -4,15 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 
 import { ModeToggle } from "@/components/shared/ModeToggle";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import AuthAccountAction from "@/components/auth/AuthAccountAction";
+import Modal from "@/components/modals/Modal";
+import LoginForm from "@/components/auth/LoginForm";
+import SignUpForm from "@/components/auth/SignUpForm";
 
 type JobsPageHeaderProps = {
   onHeightChange?: (height: number) => void;
@@ -20,7 +15,12 @@ type JobsPageHeaderProps = {
 
 export function JobsPageHeader({ onHeightChange }: JobsPageHeaderProps) {
   const [headerHeight, setHeaderHeight] = React.useState(0);
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
+  const [showSignupModal, setShowSignupModal] = React.useState(false);
   const headerRef = React.useRef<HTMLElement | null>(null);
+
+  const actionButtonClass =
+    "rounded-lg border border-border bg-card text-foreground hover:bg-muted/80 transition-colors";
 
   React.useLayoutEffect(() => {
     const headerEl = headerRef.current;
@@ -69,26 +69,11 @@ export function JobsPageHeader({ onHeightChange }: JobsPageHeaderProps) {
 
           <div className="flex items-center gap-2">
             <ModeToggle />
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center rounded-full border border-border bg-card p-0.5 text-foreground"
-                  aria-label="Open profile menu"
-                >
-                  <Avatar size="sm">
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end" sideOffset={8}>
-                <DropdownMenuLabel>Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <AuthAccountAction
+              onOpenLogin={() => setShowLoginModal(true)}
+              onOpenSignup={() => setShowSignupModal(true)}
+              buttonClassName={actionButtonClass}
+            />
           </div>
         </div>
       </header>
@@ -100,6 +85,32 @@ export function JobsPageHeader({ onHeightChange }: JobsPageHeaderProps) {
           height: `${headerHeight}px`,
         }}
       />
+
+      <Modal
+        open={showLoginModal}
+        className="max-w-sm! p-8"
+        onOpenChange={setShowLoginModal}
+        title="Login to Your Account"
+        description="Enter your credentials to access your account"
+      >
+        <LoginForm
+          setShowLoginModal={setShowLoginModal}
+          setShowSignupModal={setShowSignupModal}
+        />
+      </Modal>
+
+      <Modal
+        open={showSignupModal}
+        className="max-w-sm! p-8"
+        onOpenChange={setShowSignupModal}
+        title="Create Your Account"
+        description="Sign up to start applying for jobs"
+      >
+        <SignUpForm
+          setShowLoginModal={setShowLoginModal}
+          setShowSignupModal={setShowSignupModal}
+        />
+      </Modal>
     </>
   );
 }

@@ -1,6 +1,10 @@
+export const WORKPLACE_TYPES = ["remote", "on_site", "hybrid"] as const;
+
+export type WorkplaceType = (typeof WORKPLACE_TYPES)[number];
+
 export const JOB_TYPES = [
-  "full-time",
-  "part-time",
+  "full_time",
+  "part_time",
   "internship",
   "freelance",
   "contract",
@@ -27,7 +31,7 @@ export interface Job {
   title: string;
   company_name: string;
   location: string;
-  workplace_type: string;
+  workplace_type: WorkplaceType;
   job_type: JobType;
   min_salary: number;
   max_salary: number;

@@ -24,10 +24,10 @@ export function ModeToggle() {
 
   return (
     <Button
-      variant="secondary"
+      variant="outline"
       size="md"
       onClick={toggleTheme}
-      className="rounded-lg border border-border bg-card text-foreground"
+      className="rounded-lg border border-border bg-card text-foreground hover:bg-muted/80 transition-colors"
     >
       {theme === "light" ? (
         <HugeiconsIcon icon={Moon01Icon} className="size-4.5" />
