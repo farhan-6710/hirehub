@@ -56,14 +56,14 @@ export function MainLayout({
           isMobile={getIsMobile()}
         />
 
-        <div className="flex h-screen flex-col w-full">
+        <div className="flex h-screen overflow-hidden flex-col w-full">
           <EmployersPageHeader
             onHeightChange={setHeaderHeight}
             handleToggleSidebar={handleToggleSidebar}
             isFixed={false}
           />
           <EmployerHeaderContext.Provider value={{ headerHeight }}>
-            <main className="flex-1  p-4 md:p-8">{children}</main>
+            <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
           </EmployerHeaderContext.Provider>
         </div>
       </div>
