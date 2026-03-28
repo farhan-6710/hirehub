@@ -29,6 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
+  console.log("AuthProvider rendered, user:", user);
   const [loading, setLoading] = useState(false);
 
   const getApiErrorMessage = (error: unknown, fallback: string): string => {

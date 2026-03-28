@@ -18,6 +18,8 @@ export interface StatusBadgeConfig {
 
 export interface JobCardProps {
   job: Job;
+  onClick?: () => void;
+  href?: string;
 }
 
 export interface FiltersPanelProps {

@@ -80,7 +80,7 @@ const HeroContent = () => {
             size="2xl"
             className="rounded-full border border-primary! bg-glow-green-bg! hover:border-border! hover:bg-card! px-8 py-4 text-lg font-semibold text-foreground sm:px-10 sm:text-3xl duration-200"
           >
-            <Link href="/employer-dashboard/post-job">Post a Job</Link>
+            <Link href="/employer?tab=post-job">Post a Job</Link>
           </Button>
         </motion.div>
       </motion.div>

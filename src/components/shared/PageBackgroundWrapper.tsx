@@ -14,7 +14,7 @@ export function PageBackgroundWrapper({
 }: PageBackgroundWrapperProps) {
   return (
     <div
-      className={cn("relative isolate min-h-screen bg-background", className)}
+      className={cn("relative isolate bg-background h-full", className)}
     >
       {/* Fixed page background */}
       <div className="pointer-events-none fixed inset-0 z-0">

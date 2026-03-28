@@ -59,6 +59,12 @@ export const authApi = {
     const response = await axiosInstance({
       method: API_URL.AUTH.ME.type,
       url: API_URL.AUTH.ME.url,
+      params: { _: Date.now() },
+      headers: {
+        "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
     });
     return response.data;
   },
