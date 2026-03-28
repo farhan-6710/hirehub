@@ -9,12 +9,13 @@ import {
   Cancel01Icon,
 } from "@hugeicons/core-free-icons";
 import {
-  applications as defaultApps,
   getApplicationStatusBadge,
   type Application,
 } from "@/constants/applications";
 import { formatDate } from "@/utils/jobs/utils";
 import type { Job } from "@/types/jobs/jobs";
+import { employerApi } from "@/services/employerApi";
+import { showToast } from "@/config/ToastConfig";
 
 interface JobApplicationsProps {
   job: Job;
@@ -22,19 +23,48 @@ interface JobApplicationsProps {
 }
 
 export function JobApplications({ job, onBack }: JobApplicationsProps) {
-  const [apps, setApps] = useState<Application[]>(
-    defaultApps.filter((app) => app.jobId === job.id),
-  );
+  const [apps, setApps] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleUpdateStatus = (
-    appId: number,
-    newStatus: Application["status"],
-  ) => {
-    setApps(
-      apps.map((app) =>
-        app.id === appId ? { ...app, status: newStatus } : app,
-      ),
-    );
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true);
+        const data = await employerApi.getJobApplications(job.id);
+        const mapped: Application[] = (data.applications ?? []).map(
+          (entry) => ({
+            id: entry.id,
+            jobId: entry.jobId,
+            applicantName: entry.applicantName,
+            applicantEmail: entry.applicantEmail,
+            status: entry.status,
+            appliedDate: entry.appliedDate,
+            resumeUrl: entry.resumeUrl,
+            coverLetter: entry.coverLetter ?? "",
+          }),
+        );
+        setApps(mapped);
+      } catch {
+        showToast({
+          type: "error",
+          title: "Failed to load applications",
+          description: "Please try again.",
+        });
+        setApps([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void run();
+  }, [job.id]);
+
+  const handleUnavailableAction = (label: string) => {
+    showToast({
+      type: "info",
+      title: `${label} not available`,
+      description: "This action will be enabled in a later update.",
+    });
   };
 
   return (
@@ -69,7 +99,9 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
       </div>
 
       {/* Applications List */}
-      {apps.length === 0 ? (
+      {loading ? (
+        <p className="text-muted-foreground">loading..</p>
+      ) : apps.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-border rounded-2xl bg-card/20 pb-20">
           <p className="text-xl font-medium text-foreground py-4">
             No applications yet
@@ -125,6 +157,7 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                   <Button
                     variant="outline"
                     className="w-full gap-2 justify-center"
+                    onClick={() => handleUnavailableAction("View resume")}
                   >
                     <HugeiconsIcon icon={Download01Icon} size={18} />
                     View Resume
@@ -133,9 +166,8 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                   <div className="flex gap-2">
                     <Button
                       variant="default"
-                      className={`flex-1 gap-1.5 ${app.status === "accepted" ? "opacity-50 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 text-white"}`}
-                      onClick={() => handleUpdateStatus(app.id, "accepted")}
-                      disabled={app.status === "accepted"}
+                      className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => handleUnavailableAction("Accept")}
                     >
                       <HugeiconsIcon icon={Tick01Icon} size={18} />
                       Accept
@@ -143,8 +175,7 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                     <Button
                       variant="destructive"
                       className="flex-1 gap-1.5"
-                      onClick={() => handleUpdateStatus(app.id, "rejected")}
-                      disabled={app.status === "rejected"}
+                      onClick={() => handleUnavailableAction("Reject")}
                     >
                       <HugeiconsIcon icon={Cancel01Icon} size={18} />
                       Reject

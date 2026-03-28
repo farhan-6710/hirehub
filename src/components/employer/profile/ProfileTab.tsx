@@ -1,12 +1,61 @@
 import React from "react";
 import Image from "next/image";
 import { PageBackgroundWrapper } from "../../shared/PageBackgroundWrapper";
-import { employerProfile } from "@/constants/employerDummyData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { employerApi, type EmployerProfile } from "@/services/employerApi";
+import { showToast } from "@/config/ToastConfig";
 
 export function ProfileTab() {
+  const [loading, setLoading] = React.useState(true);
+  const [employerProfile, setEmployerProfile] =
+    React.useState<EmployerProfile | null>(null);
+
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true);
+        const data = await employerApi.getProfile();
+        setEmployerProfile(data.employerProfile);
+      } catch {
+        showToast({
+          type: "error",
+          title: "Failed to load profile",
+          description: "Please try again.",
+        });
+        setEmployerProfile(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void run();
+  }, []);
+
+  if (loading) {
+    return (
+      <PageBackgroundWrapper>
+        <p className="text-muted-foreground">loading..</p>
+      </PageBackgroundWrapper>
+    );
+  }
+
+  if (!employerProfile) {
+    return (
+      <PageBackgroundWrapper>
+        <div className="max-w-4xl mx-auto rounded-2xl border border-dashed border-border p-8 text-center bg-card/20">
+          <h2 className="text-xl font-semibold text-foreground">
+            No employer profile found.
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Complete employer signup to create your company profile.
+          </p>
+        </div>
+      </PageBackgroundWrapper>
+    );
+  }
+
   return (
     <PageBackgroundWrapper>
       <div className="max-w-4xl mx-auto space-y-8 pb-12">

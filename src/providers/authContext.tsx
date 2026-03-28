@@ -6,10 +6,11 @@ import { setMemoryAuthStatus } from "@/utils/auth";
 import { API_URL } from "@/constants/api";
 
 interface AppUser {
-  id: string;
+  id: number;
   name: string;
   email: string;
   picture: string;
+  roles: Array<"candidate" | "employer">;
 }
 
 interface AuthContextType {
@@ -29,7 +30,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
-  console.log("AuthProvider rendered, user:", user);
   const [loading, setLoading] = useState(false);
 
   const getApiErrorMessage = (error: unknown, fallback: string): string => {
@@ -57,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             name: data.user.name,
             email: data.user.email,
             picture: data.user.picture || "",
+            roles: data.user.roles ?? (data.user.role ? [data.user.role] : []),
           });
           setMemoryAuthStatus(true);
         } else {
@@ -85,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: data.user.name,
           email: data.user.email,
           picture: data.user.picture || "",
+          roles: data.user.roles ?? (data.user.role ? [data.user.role] : []),
         });
         setMemoryAuthStatus(true);
       } else {
@@ -108,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: data.user.name,
           email: data.user.email,
           picture: data.user.picture || "",
+          roles: data.user.roles ?? (data.user.role ? [data.user.role] : []),
         });
         setMemoryAuthStatus(true);
       } else {

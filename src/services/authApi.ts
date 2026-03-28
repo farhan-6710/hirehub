@@ -3,10 +3,12 @@ import { axiosInstance } from "./axiosInstance";
 export interface AuthResponse {
   status: string;
   user: {
-    id: string;
+    id: number;
     name: string;
     email: string;
     picture?: string;
+    roles?: Array<"candidate" | "employer">;
+    role?: "candidate" | "employer";
   };
   token?: string;
   error?: string;

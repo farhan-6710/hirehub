@@ -1,9 +1,5 @@
 import React from "react";
 import { PageBackgroundWrapper } from "../../shared/PageBackgroundWrapper";
-import {
-  dashboardStats,
-  recentApplications,
-} from "@/constants/employerDummyData";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Briefcase02Icon,
@@ -11,8 +7,52 @@ import {
   Calendar02Icon,
   CheckListIcon,
 } from "@hugeicons/core-free-icons";
+import {
+  employerApi,
+  type EmployerRecentApplication,
+} from "@/services/employerApi";
+import { showToast } from "@/config/ToastConfig";
 
 export function DashboardTab() {
+  const [loading, setLoading] = React.useState(true);
+  const [dashboardStats, setDashboardStats] = React.useState({
+    activeJobs: 0,
+    totalApplicants: 0,
+    reviewedApplications: 0,
+    acceptedCandidates: 0,
+  });
+  const [recentApplications, setRecentApplications] = React.useState<
+    EmployerRecentApplication[]
+  >([]);
+
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true);
+        const data = await employerApi.getDashboard();
+        setDashboardStats(data.dashboardStats);
+        setRecentApplications(data.recentApplications ?? []);
+      } catch {
+        showToast({
+          type: "error",
+          title: "Failed to load dashboard",
+          description: "Please try again.",
+        });
+        setDashboardStats({
+          activeJobs: 0,
+          totalApplicants: 0,
+          reviewedApplications: 0,
+          acceptedCandidates: 0,
+        });
+        setRecentApplications([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void run();
+  }, []);
+
   const stats = [
     {
       label: "Active Jobs",
@@ -56,6 +96,8 @@ export function DashboardTab() {
           </p>
         </div>
 
+        {loading ? <p className="text-muted-foreground">loading..</p> : null}
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {stats.map((stat, i) => (
@@ -85,60 +127,66 @@ export function DashboardTab() {
           <div className="p-6 border-b border-border">
             <h2 className="text-xl font-semibold">Recent Applications</h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted/30">
-                <tr>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">
-                    Candidate
-                  </th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">
-                    Job Role
-                  </th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">
-                    Applied Date
-                  </th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {recentApplications.map((app) => (
-                  <tr
-                    key={app.id}
-                    className="hover:bg-muted/10 transition-colors"
-                  >
-                    <td className="px-6 py-4 font-medium text-foreground">
-                      {app.candidateName}
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {app.jobTitle}
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {app.appliedDate}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
-                          app.status === "reviewed"
-                            ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-                            : app.status === "accepted"
-                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                              : app.status === "pending"
-                                ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
-                                : "bg-red-500/10 text-red-500 border-red-500/20"
-                        }`}
-                      >
-                        {app.status.charAt(0).toUpperCase() +
-                          app.status.slice(1)}
-                      </span>
-                    </td>
+          {recentApplications.length === 0 ? (
+            <div className="p-6 text-sm text-muted-foreground">
+              No applications yet.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-muted/30">
+                  <tr>
+                    <th className="px-6 py-4 font-medium text-muted-foreground">
+                      Candidate
+                    </th>
+                    <th className="px-6 py-4 font-medium text-muted-foreground">
+                      Job Role
+                    </th>
+                    <th className="px-6 py-4 font-medium text-muted-foreground">
+                      Applied Date
+                    </th>
+                    <th className="px-6 py-4 font-medium text-muted-foreground">
+                      Status
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {recentApplications.map((app) => (
+                    <tr
+                      key={app.id}
+                      className="hover:bg-muted/10 transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-foreground">
+                        {app.candidateName}
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground">
+                        {app.jobTitle}
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground">
+                        {app.appliedDate}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
+                            app.status === "reviewed"
+                              ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                              : app.status === "accepted"
+                                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                : app.status === "pending"
+                                  ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                                  : "bg-red-500/10 text-red-500 border-red-500/20"
+                          }`}
+                        >
+                          {app.status.charAt(0).toUpperCase() +
+                            app.status.slice(1)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </PageBackgroundWrapper>

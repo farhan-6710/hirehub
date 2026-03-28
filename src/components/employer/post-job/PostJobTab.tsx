@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusSignIcon, Delete01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { jobsApi } from "@/services/jobsApi";
+import { showToast } from "@/config/ToastConfig";
 
 export function PostJobTab() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [currentSkill, setCurrentSkill] = useState("");
 
@@ -40,9 +43,92 @@ export function PostJobTab() {
     setList(list.filter((item) => item !== itemToRemove));
   };
 
-  const handlePostJob = (e: React.FormEvent) => {
+  const handlePostJob = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert("Job posted successfully (Dummy)!");
+
+    try {
+      setIsSubmitting(true);
+
+      const formData = new FormData(e.currentTarget);
+      const title = String(formData.get("title") ?? "").trim();
+      const companyName = String(formData.get("companyName") ?? "").trim();
+      const location = String(formData.get("location") ?? "").trim();
+      const workplaceType = String(formData.get("workplaceType") ?? "") as
+        | "remote"
+        | "hybrid"
+        | "on_site";
+      const jobType = String(formData.get("jobType") ?? "") as
+        | "full_time"
+        | "part_time"
+        | "internship"
+        | "freelance"
+        | "contract";
+      const experienceLevel = String(formData.get("experienceLevel") ?? "") as
+        | "fresher"
+        | "junior"
+        | "intermediate"
+        | "senior";
+      const currency = String(formData.get("currency") ?? "INR");
+      const minSalary = Number(formData.get("minSalary") ?? 0);
+      const maxSalary = Number(formData.get("maxSalary") ?? 0);
+      const description = String(formData.get("description") ?? "").trim();
+      const applicationDeadline = String(
+        formData.get("applicationDeadline") ?? "",
+      );
+
+      if (
+        requirements.length === 0 ||
+        responsibilities.length === 0 ||
+        skills.length === 0
+      ) {
+        showToast({
+          type: "warning",
+          title: "Missing list fields",
+          description:
+            "Please add at least one requirement, responsibility, and skill.",
+        });
+        return;
+      }
+
+      await jobsApi.createJob({
+        title,
+        companyName,
+        location,
+        workplaceType,
+        jobType,
+        minSalary,
+        maxSalary,
+        currency,
+        experienceLevel,
+        description,
+        requirements,
+        responsibilities,
+        skills,
+        applicationDeadline,
+      });
+
+      showToast({
+        type: "success",
+        title: "Job posted",
+        description: "Your job is now live.",
+      });
+
+      e.currentTarget.reset();
+      setSkills([]);
+      setRequirements([]);
+      setResponsibilities([]);
+    } catch (error) {
+      const apiError = (error as { response?: { data?: { error?: string } } })
+        ?.response?.data?.error;
+
+      showToast({
+        type: "error",
+        title: "Failed to post job",
+        description: apiError || "Please check your input and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,25 +157,40 @@ export function PostJobTab() {
                 <label className="text-sm font-medium text-foreground">
                   Job Title
                 </label>
-                <Input placeholder="e.g. Senior Frontend Developer" required />
+                <Input
+                  name="title"
+                  placeholder="e.g. Senior Frontend Developer"
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
                   Company Name
                 </label>
-                <Input placeholder="e.g. TechCorp" required />
+                <Input
+                  name="companyName"
+                  placeholder="e.g. TechCorp"
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
                   Location
                 </label>
-                <Input placeholder="e.g. New York, Remote, etc." required />
+                <Input
+                  name="location"
+                  placeholder="e.g. New York, Remote, etc."
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
                   Workplace Type
                 </label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <select
+                  name="workplaceType"
+                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   <option value="remote">Remote</option>
                   <option value="on_site">On-site</option>
                   <option value="hybrid">Hybrid</option>
@@ -99,7 +200,10 @@ export function PostJobTab() {
                 <label className="text-sm font-medium text-foreground">
                   Job Type
                 </label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <select
+                  name="jobType"
+                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   <option value="full_time">Full-time</option>
                   <option value="part_time">Part-time</option>
                   <option value="contract">Contract</option>
@@ -111,7 +215,10 @@ export function PostJobTab() {
                 <label className="text-sm font-medium text-foreground">
                   Experience Level
                 </label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <select
+                  name="experienceLevel"
+                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   <option value="fresher">Fresher</option>
                   <option value="junior">Junior</option>
                   <option value="intermediate">Intermediate</option>
@@ -131,7 +238,10 @@ export function PostJobTab() {
                 <label className="text-sm font-medium text-foreground">
                   Currency
                 </label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <select
+                  name="currency"
+                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   <option value="INR">INR (₹)</option>
                   <option value="USD">USD ($)</option>
                   <option value="EUR">EUR (€)</option>
@@ -142,6 +252,7 @@ export function PostJobTab() {
                   Min Salary
                 </label>
                 <Input
+                  name="minSalary"
                   type="number"
                   placeholder="e.g. 500000"
                   min="0"
@@ -153,6 +264,7 @@ export function PostJobTab() {
                   Max Salary
                 </label>
                 <Input
+                  name="maxSalary"
                   type="number"
                   placeholder="e.g. 1000000"
                   min="0"
@@ -173,8 +285,9 @@ export function PostJobTab() {
                 Job Description
               </label>
               <Textarea
+                name="description"
                 placeholder="Describe the role comprehensively..."
-                className="min-h-[120px] bg-background/50"
+                className="min-h-30 bg-background/50"
                 required
               />
             </div>
@@ -313,6 +426,7 @@ export function PostJobTab() {
                 Application Deadline
               </label>
               <Input
+                name="applicationDeadline"
                 type="date"
                 required
                 className="w-full md:w-1/3 bg-background/50"
@@ -328,9 +442,13 @@ export function PostJobTab() {
             >
               Save as Draft
             </Button>
-            <Button type="submit" className="gap-2 w-full sm:w-auto shadow-md">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="gap-2 w-full sm:w-auto shadow-md"
+            >
               <HugeiconsIcon icon={PlusSignIcon} size={18} />
-              Post Job
+              {isSubmitting ? "Posting..." : "Post Job"}
             </Button>
           </div>
         </form>
