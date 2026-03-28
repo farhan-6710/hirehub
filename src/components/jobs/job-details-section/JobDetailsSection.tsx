@@ -48,7 +48,7 @@ export function JobDetailsSection({
         <div className="flex flex-col gap-6 lg:col-span-7">
           <div>
             <h3 className="text-2xl font-semibold tracking-tight sm:text-3xl text-foreground mb-3">
-              {job.company_name}
+              {job.companyName}
             </h3>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
@@ -58,7 +58,7 @@ export function JobDetailsSection({
               <span>•</span>
               <span className="flex items-center gap-1">
                 <HugeiconsIcon icon={Briefcase02Icon} className="h-4 w-4" />
-                {titleize(job.workplace_type)}
+                {titleize(job.workplaceType)}
               </span>
               <span>•</span>
               <Badge
@@ -74,41 +74,41 @@ export function JobDetailsSection({
             <div className="flex flex-col gap-1">
               <span className="text-muted-foreground">Posted on</span>
               <span className="font-medium text-foreground">
-                {formatDate(job.created_at)}
+                {formatDate(job.createdAt)}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-muted-foreground">Deadline</span>
               <span className="font-medium text-foreground">
-                {formatDate(job.application_deadline)}
+                {formatDate(job.applicationDeadline)}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-muted-foreground">Employment</span>
               <span className="font-medium text-foreground">
-                {titleize(job.job_type)}
+                {titleize(job.jobType)}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-muted-foreground">Experience</span>
               <span className="font-medium text-foreground">
-                {titleize(job.experience_level)}
+                {titleize(job.experienceLevel)}
                 <span className="ml-1.5 font-normal text-muted-foreground/80">
-                  {getExperienceLevelBracket(job.experience_level)}
+                  {getExperienceLevelBracket(job.experienceLevel)}
                 </span>
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-muted-foreground">Salary</span>
               <span className="font-medium text-foreground">
-                {job.min_salary.toLocaleString()} -{" "}
-                {job.max_salary.toLocaleString()} {job.currency}
+                {job.minSalary.toLocaleString()} -{" "}
+                {job.maxSalary.toLocaleString()} {job.currency}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-muted-foreground">Applicants</span>
               <span className="font-medium text-foreground">
-                {job.people_applied ?? 0}
+                {job.peopleApplied ?? 0}
               </span>
             </div>
           </div>

@@ -54,7 +54,7 @@ export function JobCard({ job, onClick, href }: JobCardProps) {
 
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mb-4">
             <span className="text-secondary-foreground font-medium">
-              {job.company_name}
+              {job.companyName}
             </span>
             <span className="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
             <span className="flex items-center gap-1">
@@ -62,11 +62,11 @@ export function JobCard({ job, onClick, href }: JobCardProps) {
               {job.location}
             </span>
             <span className="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
-            <span>{formatDate(job.created_at)}</span>
-            {formatPeopleApplied(job.people_applied) ? (
+            <span>{formatDate(job.createdAt)}</span>
+            {formatPeopleApplied(job.peopleApplied) ? (
               <>
                 <span className="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
-                <span>{formatPeopleApplied(job.people_applied)}</span>
+                <span>{formatPeopleApplied(job.peopleApplied)}</span>
               </>
             ) : null}
           </div>
@@ -76,25 +76,25 @@ export function JobCard({ job, onClick, href }: JobCardProps) {
               variant="outline"
               className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs"
             >
-              {titleize(job.job_type)}
+              {titleize(job.jobType)}
             </Badge>
             <Badge
               variant="outline"
               className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs capitalize"
             >
-              {titleize(job.workplace_type)}
+              {titleize(job.workplaceType)}
             </Badge>
             <Badge
               variant="outline"
               className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs capitalize"
             >
-              {titleize(job.experience_level)}
+              {titleize(job.experienceLevel)}
             </Badge>
             <Badge
               variant="outline"
               className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs"
             >
-              {formatSalary(job.min_salary, job.max_salary, job.currency)}
+              {formatSalary(job.minSalary, job.maxSalary, job.currency)}
             </Badge>
           </div>
 

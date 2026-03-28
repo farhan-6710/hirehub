@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { PageBackgroundWrapper } from "../../shared/PageBackgroundWrapper";
 import { jobs } from "@/constants/jobs";
-import type { Job } from "@/types/jobs/jobs";
 import { JobCard } from "@/components/jobs/jobs-listing-section/JobCard";
 import { JobApplications } from "./JobApplications";
 

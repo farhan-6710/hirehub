@@ -29,18 +29,18 @@ export function DashboardTab() {
       bg: "bg-emerald-500/10",
     },
     {
-      label: "Interviews",
-      value: dashboardStats.interviewsScheduled,
+      label: "Reviewed",
+      value: dashboardStats.reviewedApplications,
       icon: Calendar02Icon,
       color: "text-amber-500",
       bg: "bg-amber-500/10",
     },
     {
-      label: "Hired",
-      value: dashboardStats.hiredCandidates,
+      label: "Accepted",
+      value: dashboardStats.acceptedCandidates,
       icon: CheckListIcon,
-      color: "text-purple-500",
-      bg: "bg-purple-500/10",
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
     },
   ];
 
@@ -121,16 +121,17 @@ export function DashboardTab() {
                     <td className="px-6 py-4">
                       <span
                         className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
-                          app.status === "Review"
+                          app.status === "reviewed"
                             ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-                            : app.status === "Interview"
-                              ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
-                              : app.status === "Hired"
-                                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                            : app.status === "accepted"
+                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                              : app.status === "pending"
+                                ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
                                 : "bg-red-500/10 text-red-500 border-red-500/20"
                         }`}
                       >
-                        {app.status}
+                        {app.status.charAt(0).toUpperCase() +
+                          app.status.slice(1)}
                       </span>
                     </td>
                   </tr>

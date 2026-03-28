@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { PageBackgroundWrapper } from "../../shared/PageBackgroundWrapper";
 import { employerProfile } from "@/constants/employerDummyData";
 import { Input } from "@/components/ui/input";
@@ -20,8 +21,20 @@ export function ProfileTab() {
 
         <div className="rounded-2xl border border-border bg-card/40 backdrop-blur-sm p-6 md:p-10 shadow-sm space-y-8">
           <div className="flex items-center gap-6 pb-6 border-b border-border">
-            <div className="h-24 w-24 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary border border-primary/20 shrink-0">
-              {employerProfile.companyName.charAt(0)}
+            <div className="h-24 w-24 rounded-2xl bg-primary/10 border border-primary/20 shrink-0 overflow-hidden">
+              {employerProfile.companyLogo ? (
+                <Image
+                  src={employerProfile.companyLogo}
+                  alt={`${employerProfile.companyName} logo`}
+                  width={96}
+                  height={96}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center text-3xl font-bold text-primary">
+                  {employerProfile.companyName.charAt(0)}
+                </div>
+              )}
             </div>
             <div>
               <h2 className="text-2xl font-bold">
@@ -60,7 +73,7 @@ export function ProfileTab() {
                 <label className="text-sm font-medium text-foreground">
                   Headquarters Location
                 </label>
-                <Input defaultValue={employerProfile.location} />
+                <Input defaultValue={employerProfile.headquartersLocation} />
               </div>
             </div>
 
@@ -69,8 +82,8 @@ export function ProfileTab() {
                 Company Description
               </label>
               <Textarea
-                defaultValue={employerProfile.description}
-                className="min-h-[120px] bg-background/50"
+                defaultValue={employerProfile.companyDescription}
+                className="min-h-30 bg-background/50"
               />
             </div>
 
@@ -88,7 +101,7 @@ export function ProfileTab() {
                 <label className="text-sm font-medium text-foreground">
                   Contact Phone
                 </label>
-                <Input defaultValue={employerProfile.phone} type="tel" />
+                <Input defaultValue={employerProfile.contactPhone} type="tel" />
               </div>
             </div>
           </div>

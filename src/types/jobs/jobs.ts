@@ -27,24 +27,24 @@ export type JobStatus = (typeof JOB_STATUSES)[number];
 
 export interface Job {
   id: number;
-  posted_by_user_id: number;
+  postedByUserId: number;
   title: string;
-  company_name: string;
+  companyName: string;
   location: string;
-  workplace_type: WorkplaceType;
-  job_type: JobType;
-  min_salary: number;
-  max_salary: number;
+  workplaceType: WorkplaceType;
+  jobType: JobType;
+  minSalary: number;
+  maxSalary: number;
   currency: string;
-  experience_level: ExperienceLevel;
+  experienceLevel: ExperienceLevel;
   description: string;
   requirements: string[];
   responsibilities: string[];
-  application_deadline: string;
-  people_applied?: number;
+  applicationDeadline: string;
+  peopleApplied?: number;
   status: JobStatus;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 
   // UI-only metadata for mock data / listing badges
 }

@@ -2,68 +2,68 @@ import type { BadgeVariant } from "@/types/jobs/components";
 
 export interface Application {
   id: number;
-  job_id: number;
-  applicant_name: string;
-  applicant_email: string;
-  status: "Pending" | "Reviewed" | "Accepted" | "Rejected";
-  applied_date: string;
-  resume_url: string;
-  cover_letter: string;
+  jobId: number;
+  applicantName: string;
+  applicantEmail: string;
+  status: "pending" | "reviewed" | "accepted" | "rejected";
+  appliedDate: string;
+  resumeUrl: string;
+  coverLetter: string;
 }
 
 export const applications: Application[] = [
   {
     id: 101,
-    job_id: 1, // Frontend Developer
-    applicant_name: "Alice Johnson",
-    applicant_email: "alice.j@example.com",
-    status: "Pending",
-    applied_date: "2026-03-20T10:30:00.000Z",
-    resume_url: "#",
-    cover_letter:
+    jobId: 1,
+    applicantName: "Alice Johnson",
+    applicantEmail: "alice.j@example.com",
+    status: "reviewed",
+    appliedDate: "2026-03-20T10:30:00.000Z",
+    resumeUrl: "#",
+    coverLetter:
       "I am a passionate frontend developer with 3 years of experience in React and Tailwind CSS. I have built scalable UI components and would love to contribute to TechCorp.",
   },
   {
     id: 102,
-    job_id: 1, // Frontend Developer
-    applicant_name: "Bob Smith",
-    applicant_email: "bob.smith@example.com",
-    status: "Pending",
-    applied_date: "2026-03-19T14:15:00.000Z",
-    resume_url: "#",
-    cover_letter:
+    jobId: 1,
+    applicantName: "Bob Smith",
+    applicantEmail: "bob.smith@example.com",
+    status: "reviewed",
+    appliedDate: "2026-03-19T14:15:00.000Z",
+    resumeUrl: "#",
+    coverLetter:
       "With a strong background in JavaScript and Next.js, I have led multiple frontend projects. I'm excited about the opportunity at TechCorp.",
   },
   {
     id: 103,
-    job_id: 1, // Frontend Developer
-    applicant_name: "Charlie Davis",
-    applicant_email: "charlie.d@example.com",
-    status: "Pending",
-    applied_date: "2026-03-18T09:00:00.000Z",
-    resume_url: "#",
-    cover_letter: "I am applying for the frontend role. Attached is my resume.",
+    jobId: 1,
+    applicantName: "Charlie Davis",
+    applicantEmail: "charlie.d@example.com",
+    status: "pending",
+    appliedDate: "2026-03-18T09:00:00.000Z",
+    resumeUrl: "#",
+    coverLetter: "I am applying for the frontend role. Attached is my resume.",
   },
   {
     id: 104,
-    job_id: 2, // Backend Developer
-    applicant_name: "Diana Prince",
-    applicant_email: "diana.p@example.com",
-    status: "Pending",
-    applied_date: "2026-03-21T11:45:00.000Z",
-    resume_url: "#",
-    cover_letter:
+    jobId: 2,
+    applicantName: "Diana Prince",
+    applicantEmail: "diana.p@example.com",
+    status: "accepted",
+    appliedDate: "2026-03-21T11:45:00.000Z",
+    resumeUrl: "#",
+    coverLetter:
       "My extensive experience with Node.js, Express, and PostgreSQL aligns perfectly with the requirements for this role at CodeBase.",
   },
   {
     id: 105,
-    job_id: 2, // Backend Developer
-    applicant_name: "Edward Elric",
-    applicant_email: "ed.elric@example.com",
-    status: "Pending",
-    applied_date: "2026-03-22T16:20:00.000Z",
-    resume_url: "#",
-    cover_letter:
+    jobId: 2,
+    applicantName: "Edward Elric",
+    applicantEmail: "ed.elric@example.com",
+    status: "rejected",
+    appliedDate: "2026-03-22T16:20:00.000Z",
+    resumeUrl: "#",
+    coverLetter:
       "I have a solid understanding of system architecture and database optimization. I'm eager to bring my skills to your backend team.",
   },
 ];
@@ -72,19 +72,19 @@ export const getApplicationStatusBadge = (
   status: Application["status"],
 ): { variant: BadgeVariant; label: string; className: string } => {
   switch (status) {
-    case "Accepted":
+    case "accepted":
       return {
         variant: "default",
         label: "Accepted",
         className: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
       };
-    case "Rejected":
+    case "rejected":
       return {
         variant: "destructive",
         label: "Rejected",
         className: "bg-red-500/10 text-red-500 hover:bg-red-500/20",
       };
-    case "Reviewed":
+    case "reviewed":
       return {
         variant: "secondary",
         label: "Reviewed",

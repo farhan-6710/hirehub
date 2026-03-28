@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ExperienceLevel, Job, JobType } from "@/types/jobs/jobs";
 
 export function useJobsFilters(jobs: Job[]) {
@@ -8,16 +8,15 @@ export function useJobsFilters(jobs: Job[]) {
   const [selectedExperienceLevels, setSelectedExperienceLevels] = useState<
     ExperienceLevel[]
   >([]);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
 
-  useEffect(() => {
-    const nextFilteredJobs = jobs.filter((job) => {
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
       // Search Match
       const searchLower = searchQuery.toLowerCase();
       const matchSearch =
         !searchQuery ||
         job.title.toLowerCase().includes(searchLower) ||
-        job.company_name.toLowerCase().includes(searchLower) ||
+        job.companyName.toLowerCase().includes(searchLower) ||
         job.description.toLowerCase().includes(searchLower);
 
       // Location Match
@@ -27,13 +26,12 @@ export function useJobsFilters(jobs: Job[]) {
 
       // Job Type Match
       const matchType =
-        selectedJobTypes.length === 0 ||
-        selectedJobTypes.includes(job.job_type);
+        selectedJobTypes.length === 0 || selectedJobTypes.includes(job.jobType);
 
       // Experience match
       const matchExp =
         selectedExperienceLevels.length === 0 ||
-        selectedExperienceLevels.includes(job.experience_level);
+        selectedExperienceLevels.includes(job.experienceLevel);
 
       const matchStatus = job.status !== "closed";
 
@@ -41,9 +39,6 @@ export function useJobsFilters(jobs: Job[]) {
         matchSearch && matchLocation && matchType && matchExp && matchStatus
       );
     });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    setFilteredJobs(nextFilteredJobs);
   }, [
     jobs,
     searchQuery,

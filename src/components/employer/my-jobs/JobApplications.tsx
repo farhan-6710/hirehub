@@ -23,7 +23,7 @@ interface JobApplicationsProps {
 
 export function JobApplications({ job, onBack }: JobApplicationsProps) {
   const [apps, setApps] = useState<Application[]>(
-    defaultApps.filter((app) => app.job_id === job.id),
+    defaultApps.filter((app) => app.jobId === job.id),
   );
 
   const handleUpdateStatus = (
@@ -97,7 +97,7 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-xl font-semibold text-foreground tracking-tight flex items-center gap-3">
-                        {app.applicant_name}
+                        {app.applicantName}
                         <Badge
                           variant={statusConfig.variant}
                           className={statusConfig.className}
@@ -106,8 +106,8 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                         </Badge>
                       </h3>
                       <p className="text-muted-foreground text-sm flex items-center gap-2 mt-1">
-                        {app.applicant_email} &bull; Applied on{" "}
-                        {formatDate(app.applied_date)}
+                        {app.applicantEmail} &bull; Applied on{" "}
+                        {formatDate(app.appliedDate)}
                       </p>
                     </div>
                   </div>
@@ -116,7 +116,7 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                     <p className="font-medium text-foreground mb-1">
                       Cover Letter
                     </p>
-                    <p>{app.cover_letter}</p>
+                    <p>{app.coverLetter}</p>
                   </div>
                 </div>
 
@@ -133,9 +133,9 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                   <div className="flex gap-2">
                     <Button
                       variant="default"
-                      className={`flex-1 gap-1.5 ${app.status === "Accepted" ? "opacity-50 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 text-white"}`}
-                      onClick={() => handleUpdateStatus(app.id, "Accepted")}
-                      disabled={app.status === "Accepted"}
+                      className={`flex-1 gap-1.5 ${app.status === "accepted" ? "opacity-50 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 text-white"}`}
+                      onClick={() => handleUpdateStatus(app.id, "accepted")}
+                      disabled={app.status === "accepted"}
                     >
                       <HugeiconsIcon icon={Tick01Icon} size={18} />
                       Accept
@@ -143,8 +143,8 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                     <Button
                       variant="destructive"
                       className="flex-1 gap-1.5"
-                      onClick={() => handleUpdateStatus(app.id, "Rejected")}
-                      disabled={app.status === "Rejected"}
+                      onClick={() => handleUpdateStatus(app.id, "rejected")}
+                      disabled={app.status === "rejected"}
                     >
                       <HugeiconsIcon icon={Cancel01Icon} size={18} />
                       Reject
