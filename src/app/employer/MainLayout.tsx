@@ -23,8 +23,14 @@ export function MainLayout({
   currentPage,
   onNavigate,
 }: MainLayoutProps) {
-  const [isSidebarLeftExpanded, setSidebarLeftExpanded] = useState(true);
+  const [isSidebarLeftExpanded, setSidebarLeftExpanded] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
+
+  React.useEffect(() => {
+    if (!getIsMobile()) {
+      setSidebarLeftExpanded(true);
+    }
+  }, []);
 
   const handleToggleSidebar = () => {
     setSidebarLeftExpanded((prev) => !prev);
@@ -60,11 +66,12 @@ export function MainLayout({
           <EmployersPageHeader
             onHeightChange={setHeaderHeight}
             handleToggleSidebar={handleToggleSidebar}
-            getIsMobile={getIsMobile}
             isFixed={false}
           />
           <EmployerHeaderContext.Provider value={{ headerHeight }}>
-            <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
+            <main className="flex-1 overflow-y-auto p-4 md:p-8">
+              {children}
+            </main>
           </EmployerHeaderContext.Provider>
         </div>
       </div>

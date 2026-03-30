@@ -7,6 +7,7 @@ import { jobsApi } from "@/services/jobsApi";
 import { showToast } from "@/config/ToastConfig";
 import { useAuth } from "@/providers/authContext";
 import { useAuthModal } from "@/providers/AuthModalContext";
+import { ResumeUploadContainer } from "./ResumeUploadContainer";
 
 export function JobApplyPanel({ jobId }: { jobId: number }) {
   const { user } = useAuth();
@@ -91,39 +92,10 @@ export function JobApplyPanel({ jobId }: { jobId: number }) {
         className="min-h-56 rounded-xl border-border bg-background/50 focus:border-primary px-4 py-3 text-sm"
       />
 
-      <div className="space-y-2 w-full">
-        <label className="text-sm font-medium text-foreground">
-          Resume Upload
-        </label>
-
-        <input
-          id="resume-file-upload"
-          type="file"
-          accept=".pdf,.doc,.docx"
-          onChange={(e) => {
-            const file = e.target.files?.[0] ?? null;
-            setResumeFile(file);
-          }}
-          className="sr-only"
-        />
-
-        <label
-          htmlFor="resume-file-upload"
-          className="flex h-24 w-full max-w-xs cursor-pointer items-center justify-center rounded-lg border border-dashed border-border bg-background/40 px-4 text-center hover:border-primary/70 hover:bg-background/60"
-        >
-          <span className="text-sm text-muted-foreground">
-            Upload Resume File
-          </span>
-        </label>
-
-        <p className="text-xs text-muted-foreground">
-          Accepted formats: PDF, DOC, DOCX (max 5MB)
-        </p>
-
-        {resumeFile ? (
-          <p className="text-xs text-foreground">Selected: {resumeFile.name}</p>
-        ) : null}
-      </div>
+      <ResumeUploadContainer
+        resumeFile={resumeFile}
+        setResumeFile={setResumeFile}
+      />
 
       <div className="pt-2">
         <Button

@@ -11,14 +11,12 @@ import { useAuthModal } from "@/providers/AuthModalContext";
 type EmployersPageHeader = {
   onHeightChange?: (height: number) => void;
   handleToggleSidebar: () => void;
-  getIsMobile?: () => boolean;
   isFixed?: boolean;
 };
 
 export function EmployersPageHeader({
   onHeightChange,
   handleToggleSidebar,
-  getIsMobile,
   isFixed = true,
 }: EmployersPageHeader) {
   const { openLoginModal, openSignupModal } = useAuthModal();
@@ -27,12 +25,6 @@ export function EmployersPageHeader({
 
   const actionButtonClass =
     "rounded-lg border border-border bg-card text-foreground hover:bg-muted/80 transition-colors";
-
-  React.useEffect(() => {
-    if (getIsMobile?.()) {
-      handleToggleSidebar();
-    }
-  }, [getIsMobile, handleToggleSidebar]);
 
   React.useLayoutEffect(() => {
     const headerEl = headerRef.current;

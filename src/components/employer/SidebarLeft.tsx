@@ -40,7 +40,7 @@ const SidebarLeft: React.FC<SidebarLeftProps> = ({
       variants={variants}
       transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
       className={cn(
-        "bg-card/20 backdrop-blur-sm border-r border-border text-foreground flex flex-col z-20",
+        "bg-card dark:bg-card/30 backdrop-blur-sm border-r border-border text-foreground flex flex-col z-20",
         isMobile
           ? "fixed left-0 top-0 bottom-0 z-50 h-full shadow-2xl"
           : "relative",

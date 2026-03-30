@@ -67,6 +67,12 @@ interface EmployerJobApplicationsResponse {
   error?: string;
 }
 
+interface UpdateApplicationStatusResponse {
+  status: string;
+  application: EmployerJobApplication;
+  error?: string;
+}
+
 export const employerApi = {
   async getDashboard(): Promise<EmployerDashboardResponse> {
     const response = await axiosInstance({
@@ -101,6 +107,19 @@ export const employerApi = {
     const response = await axiosInstance({
       method: API_URL.EMPLOYER.JOB_APPLICATIONS.type,
       url: API_URL.EMPLOYER.JOB_APPLICATIONS.url(jobId),
+    });
+
+    return response.data;
+  },
+
+  async updateApplicationStatus(
+    applicationId: number,
+    status: "pending" | "reviewed" | "accepted" | "rejected",
+  ): Promise<UpdateApplicationStatusResponse> {
+    const response = await axiosInstance({
+      method: API_URL.EMPLOYER.UPDATE_APPLICATION_STATUS.type,
+      url: API_URL.EMPLOYER.UPDATE_APPLICATION_STATUS.url(applicationId),
+      data: { status },
     });
 
     return response.data;

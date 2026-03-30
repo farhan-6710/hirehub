@@ -10,6 +10,7 @@ export const REQUEST_TYPE = {
   GET: "GET",
   POST: "POST",
   PUT: "PUT",
+  PATCH: "PATCH",
   DELETE: "DELETE",
 } as const;
 
@@ -73,6 +74,11 @@ export const API_URL = {
     JOB_APPLICATIONS: {
       type: REQUEST_TYPE.GET,
       url: (jobId: number) => withApiV1(`/employer/jobs/${jobId}/applications`),
+    },
+    UPDATE_APPLICATION_STATUS: {
+      type: REQUEST_TYPE.PATCH,
+      url: (applicationId: number) =>
+        withApiV1(`/employer/applications/${applicationId}/status`),
     },
   },
 } as const;

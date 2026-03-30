@@ -1,9 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import Modal from "@/components/modals/Modal";
 import { Button } from "@/components/ui/button";
 import { useAuthModal } from "@/providers/AuthModalContext";
+import { useAuth } from "@/providers/authContext";
 
 interface EmployerAccessContextValue {
   openEmployerAccessModal: () => void;
@@ -21,21 +22,29 @@ export function EmployerAccessProvider({
 }) {
   const [showEmployerAccessModal, setShowEmployerAccessModal] = useState(false);
   const { openLoginModal } = useAuthModal();
+  const { user } = useAuth();
+  const isEmployer = Boolean(user?.roles.includes("employer"));
 
-  const value = useMemo<EmployerAccessContextValue>(
-    () => ({
-      openEmployerAccessModal: () => setShowEmployerAccessModal(true),
-      closeEmployerAccessModal: () => setShowEmployerAccessModal(false),
-    }),
-    [],
-  );
+  const openEmployerAccessModal = () => {
+    if (isEmployer) return;
+    setShowEmployerAccessModal(true);
+  };
+
+  const closeEmployerAccessModal = () => {
+    setShowEmployerAccessModal(false);
+  };
+
+  const value: EmployerAccessContextValue = {
+    openEmployerAccessModal,
+    closeEmployerAccessModal,
+  };
 
   return (
     <EmployerAccessContext.Provider value={value}>
       {children}
 
       <Modal
-        open={showEmployerAccessModal}
+        open={!isEmployer && showEmployerAccessModal}
         onOpenChange={setShowEmployerAccessModal}
         className="max-w-lg p-7"
         title="Login as Employer"

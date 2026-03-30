@@ -25,6 +25,7 @@ interface JobApplicationsProps {
 export function JobApplications({ job, onBack }: JobApplicationsProps) {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingAppId, setUpdatingAppId] = useState<number | null>(null);
 
   React.useEffect(() => {
     const run = async () => {
@@ -59,12 +60,64 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
     void run();
   }, [job.id]);
 
-  const handleUnavailableAction = (label: string) => {
-    showToast({
-      type: "info",
-      title: `${label} not available`,
-      description: "This action will be enabled in a later update.",
-    });
+  const updateAppStatus = async (
+    applicationId: number,
+    status: "pending" | "reviewed" | "accepted" | "rejected",
+  ) => {
+    try {
+      setUpdatingAppId(applicationId);
+      await employerApi.updateApplicationStatus(applicationId, status);
+      setApps((prev) =>
+        prev.map((app) =>
+          app.id === applicationId
+            ? { ...app, status: status as Application["status"] }
+            : app,
+        ),
+      );
+    } catch (error) {
+      const apiError = (error as { response?: { data?: { error?: string } } })
+        ?.response?.data?.error;
+
+      showToast({
+        type: "error",
+        title: "Failed to update application",
+        description: apiError || "Please try again.",
+      });
+    } finally {
+      setUpdatingAppId(null);
+    }
+  };
+
+  const buildResumeUrl = (resumePath: string) => {
+    if (resumePath.startsWith("http://") || resumePath.startsWith("https://")) {
+      return resumePath;
+    }
+
+    const apiBase =
+      process.env.NEXT_PUBLIC_SERVER_URL?.replace(/\/$/, "") ||
+      "http://localhost:5001/api/v1";
+    const serverOrigin = apiBase.replace(/\/api\/v1$/, "");
+    return `${serverOrigin}${resumePath.startsWith("/") ? "" : "/"}${resumePath}`;
+  };
+
+  const handleViewResume = async (app: Application) => {
+    const resumeUrl = buildResumeUrl(app.resumeUrl);
+    window.open(resumeUrl, "_blank", "noopener,noreferrer");
+
+    if (app.status === "pending") {
+      await updateAppStatus(app.id, "reviewed");
+    }
+  };
+
+  const handleStatusAction = async (
+    app: Application,
+    status: "accepted" | "rejected",
+  ) => {
+    if (app.status === status) {
+      return;
+    }
+
+    await updateAppStatus(app.id, status);
   };
 
   return (
@@ -157,7 +210,8 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                   <Button
                     variant="outline"
                     className="w-full gap-2 justify-center"
-                    onClick={() => handleUnavailableAction("View resume")}
+                    onClick={() => void handleViewResume(app)}
+                    disabled={updatingAppId === app.id}
                   >
                     <HugeiconsIcon icon={Download01Icon} size={18} />
                     View Resume
@@ -167,7 +221,8 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                     <Button
                       variant="default"
                       className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => handleUnavailableAction("Accept")}
+                      onClick={() => void handleStatusAction(app, "accepted")}
+                      disabled={updatingAppId === app.id}
                     >
                       <HugeiconsIcon icon={Tick01Icon} size={18} />
                       Accept
@@ -175,7 +230,8 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                     <Button
                       variant="destructive"
                       className="flex-1 gap-1.5"
-                      onClick={() => handleUnavailableAction("Reject")}
+                      onClick={() => void handleStatusAction(app, "rejected")}
+                      disabled={updatingAppId === app.id}
                     >
                       <HugeiconsIcon icon={Cancel01Icon} size={18} />
                       Reject

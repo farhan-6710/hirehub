@@ -78,15 +78,15 @@ export const jobsApi = {
     payload: { coverLetter: string; resumeFile: File },
   ): Promise<ApplyJobResponse> {
     const formData = new FormData();
-    formData.append('coverLetter', payload.coverLetter);
-    formData.append('resumeFile', payload.resumeFile);
+    formData.append("coverLetter", payload.coverLetter);
+    formData.append("resumeFile", payload.resumeFile);
 
     const response = await axiosInstance({
       method: API_URL.JOBS.APPLY.type,
       url: API_URL.JOBS.APPLY.url(jobId),
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
 
