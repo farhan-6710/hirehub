@@ -5,18 +5,15 @@ import Link from "next/link";
 
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import AuthAccountAction from "@/components/auth/AuthAccountAction";
-import Modal from "@/components/modals/Modal";
-import LoginForm from "@/components/auth/LoginForm";
-import SignUpForm from "@/components/auth/SignUpForm";
+import { useAuthModal } from "@/providers/AuthModalContext";
 
 type JobsPageHeaderProps = {
   onHeightChange?: (height: number) => void;
 };
 
 export function JobsPageHeader({ onHeightChange }: JobsPageHeaderProps) {
+  const { openLoginModal, openSignupModal } = useAuthModal();
   const [headerHeight, setHeaderHeight] = React.useState(0);
-  const [showLoginModal, setShowLoginModal] = React.useState(false);
-  const [showSignupModal, setShowSignupModal] = React.useState(false);
   const headerRef = React.useRef<HTMLElement | null>(null);
 
   const actionButtonClass =
@@ -70,8 +67,8 @@ export function JobsPageHeader({ onHeightChange }: JobsPageHeaderProps) {
           <div className="flex items-center gap-2">
             <ModeToggle />
             <AuthAccountAction
-              onOpenLogin={() => setShowLoginModal(true)}
-              onOpenSignup={() => setShowSignupModal(true)}
+              onOpenLogin={openLoginModal}
+              onOpenSignup={openSignupModal}
               buttonClassName={actionButtonClass}
             />
           </div>
@@ -85,32 +82,6 @@ export function JobsPageHeader({ onHeightChange }: JobsPageHeaderProps) {
           height: `${headerHeight}px`,
         }}
       />
-
-      <Modal
-        open={showLoginModal}
-        className="max-w-sm! p-8"
-        onOpenChange={setShowLoginModal}
-        title="Login to Your Account"
-        description="Enter your credentials to access your account"
-      >
-        <LoginForm
-          setShowLoginModal={setShowLoginModal}
-          setShowSignupModal={setShowSignupModal}
-        />
-      </Modal>
-
-      <Modal
-        open={showSignupModal}
-        className="max-w-sm! p-8"
-        onOpenChange={setShowSignupModal}
-        title="Create Your Account"
-        description="Sign up to start applying for jobs"
-      >
-        <SignUpForm
-          setShowLoginModal={setShowLoginModal}
-          setShowSignupModal={setShowSignupModal}
-        />
-      </Modal>
     </>
   );
 }

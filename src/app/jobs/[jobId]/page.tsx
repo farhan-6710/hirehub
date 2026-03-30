@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import { JobApplyPanel } from "@/components/jobs/job-details-section/JobApplyPanel";
 import { JobDetailsSection } from "@/components/jobs/job-details-section/JobDetailsSection";
@@ -12,9 +12,9 @@ import { showToast } from "@/config/ToastConfig";
 export default function JobDetailsPage({
   params,
 }: {
-  params: { jobId: string };
+  params: Promise<{ jobId: string }>;
 }) {
-  const { jobId } = params;
+  const { jobId } = use(params);
   const id = Number(jobId);
   if (!Number.isFinite(id)) notFound();
 
@@ -25,9 +25,8 @@ export default function JobDetailsPage({
     const run = async () => {
       try {
         setLoading(true);
-        const data = await jobsApi.getOpenJobs();
-        const found = (data.jobs ?? []).find((item) => item.id === id) ?? null;
-        setJob(found);
+        const data = await jobsApi.getJobById(id);
+        setJob(data.job ?? null);
       } catch {
         showToast({
           type: "error",
@@ -55,7 +54,7 @@ export default function JobDetailsPage({
 
   return (
     <PageBackgroundWrapper>
-      <JobDetailsSection job={job} rightPanel={<JobApplyPanel />} />
+      <JobDetailsSection job={job} rightPanel={<JobApplyPanel jobId={id} />} />
     </PageBackgroundWrapper>
   );
 }

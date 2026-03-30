@@ -60,6 +60,7 @@ export function MainLayout({
           <EmployersPageHeader
             onHeightChange={setHeaderHeight}
             handleToggleSidebar={handleToggleSidebar}
+            getIsMobile={getIsMobile}
             isFixed={false}
           />
           <EmployerHeaderContext.Provider value={{ headerHeight }}>

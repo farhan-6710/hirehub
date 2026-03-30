@@ -43,6 +43,14 @@ export const API_URL = {
       url: withApiV1("/jobs"),
       type: REQUEST_TYPE.GET,
     },
+    DETAIL: {
+      type: REQUEST_TYPE.GET,
+      url: (jobId: number) => withApiV1(`/jobs/${jobId}`),
+    },
+    APPLY: {
+      type: REQUEST_TYPE.POST,
+      url: (jobId: number) => withApiV1(`/jobs/${jobId}/apply`),
+    },
     CREATE: {
       url: withApiV1("/jobs"),
       type: REQUEST_TYPE.POST,

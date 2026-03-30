@@ -1,21 +1,21 @@
 import * as React from "react";
 import { FiltersPanel } from "./FiltersPanel";
 import { JobsList } from "./JobsList";
-import type { Job } from "@/types/jobs/jobs";
+import type { JobListItem } from "@/types/jobs/jobs";
 import type { JobsListingSectionProps } from "@/types/jobs/components";
 import { jobsApi } from "@/services/jobsApi";
 import { showToast } from "@/config/ToastConfig";
 
 export function JobsListingSection({ stickyTopPx }: JobsListingSectionProps) {
-  const [jobs, setJobs] = React.useState<Job[]>([]);
+  const [jobs, setJobs] = React.useState<JobListItem[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [renderedJobs, setRenderedJobs] = React.useState<Job[]>([]);
+  const [renderedJobs, setRenderedJobs] = React.useState<JobListItem[]>([]);
 
   React.useEffect(() => {
     const run = async () => {
       try {
         setLoading(true);
-        const data = await jobsApi.getOpenJobs();
+        const data = await jobsApi.getJobsListing();
         const nextJobs = data.jobs ?? [];
         setJobs(nextJobs);
         setRenderedJobs(nextJobs);

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import type { ExperienceLevel, Job, JobType } from "@/types/jobs/jobs";
+import type { ExperienceLevel, JobListItem, JobType } from "@/types/jobs/jobs";
 
-export function useJobsFilters(jobs: Job[]) {
+export function useJobsFilters(jobs: JobListItem[]) {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [selectedJobTypes, setSelectedJobTypes] = useState<JobType[]>([]);

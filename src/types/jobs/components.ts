@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 
-import type { Job } from "@/types/jobs/jobs";
+import type { JobListItem } from "@/types/jobs/jobs";
 
 export type BadgeVariant =
   | "default"
@@ -17,14 +17,14 @@ export interface StatusBadgeConfig {
 }
 
 export interface JobCardProps {
-  job: Job;
+  job: JobListItem;
   onClick?: () => void;
   href?: string;
 }
 
 export interface FiltersPanelProps {
-  jobs: Job[];
-  onFilterChange: Dispatch<SetStateAction<Job[]>>;
+  jobs: JobListItem[];
+  onFilterChange: Dispatch<SetStateAction<JobListItem[]>>;
 }
 
 export interface JobsListingSectionProps {

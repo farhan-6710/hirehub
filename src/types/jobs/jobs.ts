@@ -25,9 +25,8 @@ export const JOB_STATUSES = ["open", "closed", "draft", "applied"] as const;
 
 export type JobStatus = (typeof JOB_STATUSES)[number];
 
-export interface Job {
+export interface JobListItem {
   id: number;
-  postedByUserId: number;
   title: string;
   companyName: string;
   location: string;
@@ -38,17 +37,21 @@ export interface Job {
   currency: string;
   experienceLevel: ExperienceLevel;
   description: string;
-  requirements: string[];
-  responsibilities: string[];
-  applicationDeadline: string;
   peopleApplied?: number;
   status: JobStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Job extends JobListItem {
+  postedByUserId: number;
+  requirements: string[];
+  responsibilities: string[];
+  applicationDeadline: string;
 
   // UI-only metadata for mock data / listing badges
 }
 
 export interface JobsListProps {
-  jobs: Job[];
+  jobs: JobListItem[];
 }

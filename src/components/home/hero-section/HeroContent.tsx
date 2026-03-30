@@ -4,24 +4,23 @@ import { Button } from "../../ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import Modal from "@/components/modals/Modal";
 import { useAuth } from "@/providers/authContext";
+import { useEmployerAccess } from "@/providers/EmployerAccessContext";
 
 const HeroContent = () => {
   const router = useRouter();
   const { user } = useAuth();
-  const [showEmployerLoginModal, setShowEmployerLoginModal] = useState(false);
+  const { openEmployerAccessModal } = useEmployerAccess();
 
   const isEmployer = Boolean(user?.roles.includes("employer"));
 
   const handlePostJobClick = () => {
     if (isEmployer) {
-      router.push("/employer?tab=post-job");
+      router.push("/employer?tab=dashboard");
       return;
     }
 
-    setShowEmployerLoginModal(true);
+    openEmployerAccessModal();
   };
 
   return (
@@ -106,56 +105,6 @@ const HeroContent = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      <Modal
-        open={showEmployerLoginModal}
-        onOpenChange={setShowEmployerLoginModal}
-        className="max-w-lg p-7"
-        title="Login as Employer"
-        description="Please login as an employer to post a job"
-      >
-        <div className="space-y-5">
-          <h3 className="text-xl font-semibold text-foreground">
-            Please login as an employer to post a job.
-          </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Create an employer account to post a job, or use the credentials
-            below to login as an employer.
-          </p>
-
-          <div className="rounded-xl border border-border bg-card/40 p-4 space-y-2 text-sm">
-            <p>
-              Email:{" "}
-              <span className="text-primary font-semibold">
-                employer@gmail.com
-              </span>
-            </p>
-            <p>
-              Password:{" "}
-              <span className="text-secondary-foreground font-semibold">
-                employer1234
-              </span>
-            </p>
-          </div>
-
-          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setShowEmployerLoginModal(false)}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={() => {
-                setShowEmployerLoginModal(false);
-                router.push("/employer?tab=post-job");
-              }}
-            >
-              Go to Employer Login
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </>
   );
 };

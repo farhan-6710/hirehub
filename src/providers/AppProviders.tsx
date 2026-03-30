@@ -6,6 +6,8 @@ import { store, persistor } from "@/redux/store";
 import { ThemeProvider } from "./ThemeProvider";
 import { AuthProvider } from "./authContext";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthModalProvider } from "./AuthModalContext";
+import { EmployerAccessProvider } from "./EmployerAccessContext";
 
 export default function AppProviders({
   children,
@@ -22,8 +24,12 @@ export default function AppProviders({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
-            <Toaster position="top-right" richColors closeButton />
+            <AuthModalProvider>
+              <EmployerAccessProvider>
+                {children}
+                <Toaster position="top-right" richColors closeButton />
+              </EmployerAccessProvider>
+            </AuthModalProvider>
           </AuthProvider>
         </ThemeProvider>
       </PersistGate>

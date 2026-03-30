@@ -1,34 +1,38 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import AuthAccountAction from "@/components/auth/AuthAccountAction";
-import Modal from "@/components/modals/Modal";
-import LoginForm from "@/components/auth/LoginForm";
-import SignUpForm from "@/components/auth/SignUpForm";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Menu01Icon, SparklesIcon } from "@hugeicons/core-free-icons";
+import { Menu01Icon } from "@hugeicons/core-free-icons";
+import { useAuthModal } from "@/providers/AuthModalContext";
 
 type EmployersPageHeader = {
   onHeightChange?: (height: number) => void;
   handleToggleSidebar: () => void;
+  getIsMobile?: () => boolean;
   isFixed?: boolean;
 };
 
 export function EmployersPageHeader({
   onHeightChange,
   handleToggleSidebar,
+  getIsMobile,
   isFixed = true,
 }: EmployersPageHeader) {
+  const { openLoginModal, openSignupModal } = useAuthModal();
   const [headerHeight, setHeaderHeight] = React.useState(0);
-  const [showLoginModal, setShowLoginModal] = React.useState(false);
-  const [showSignupModal, setShowSignupModal] = React.useState(false);
   const headerRef = React.useRef<HTMLElement | null>(null);
 
   const actionButtonClass =
     "rounded-lg border border-border bg-card text-foreground hover:bg-muted/80 transition-colors";
+
+  React.useEffect(() => {
+    if (getIsMobile?.()) {
+      handleToggleSidebar();
+    }
+  }, [getIsMobile, handleToggleSidebar]);
 
   React.useLayoutEffect(() => {
     const headerEl = headerRef.current;
@@ -75,8 +79,8 @@ export function EmployersPageHeader({
           <div className="flex items-center gap-2">
             <ModeToggle />
             <AuthAccountAction
-              onOpenLogin={() => setShowLoginModal(true)}
-              onOpenSignup={() => setShowSignupModal(true)}
+              onOpenLogin={openLoginModal}
+              onOpenSignup={openSignupModal}
               buttonClassName={actionButtonClass}
             />
           </div>
@@ -91,32 +95,6 @@ export function EmployersPageHeader({
           }}
         />
       )}
-
-      <Modal
-        open={showLoginModal}
-        className="max-w-sm! p-8"
-        onOpenChange={setShowLoginModal}
-        title="Login to Your Account"
-        description="Enter your credentials to access your account"
-      >
-        <LoginForm
-          setShowLoginModal={setShowLoginModal}
-          setShowSignupModal={setShowSignupModal}
-        />
-      </Modal>
-
-      <Modal
-        open={showSignupModal}
-        className="max-w-sm! p-8"
-        onOpenChange={setShowSignupModal}
-        title="Create Your Account"
-        description="Sign up to start applying for jobs"
-      >
-        <SignUpForm
-          setShowLoginModal={setShowLoginModal}
-          setShowSignupModal={setShowSignupModal}
-        />
-      </Modal>
     </>
   );
 }

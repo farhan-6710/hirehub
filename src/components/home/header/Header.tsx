@@ -6,14 +6,12 @@ import { Button } from "../../ui/button";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import AiAssistant from "@/components/ai-assistant/AiAssistant";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import Modal from "@/components/modals/Modal";
-import LoginForm from "@/components/auth/LoginForm";
-import SignUpForm from "@/components/auth/SignUpForm";
 import AuthAccountAction from "@/components/auth/AuthAccountAction";
 import MobileNavigation from "./MobileNavigation";
 import { AnimatedHeaderWrapper } from "./AnimatedHeaderWrapper";
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import { useAuthModal } from "@/providers/AuthModalContext";
 
 const NAV_ITEMS = [
   { label: "Metrics", href: "#metrics" },
@@ -23,8 +21,7 @@ const NAV_ITEMS = [
 ];
 
 export function Header() {
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showSignupModal, setShowSignupModal] = useState(false);
+  const { openLoginModal, openSignupModal } = useAuthModal();
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const actionButtonClass =
@@ -64,13 +61,13 @@ export function Header() {
 
   const handleOpenLoginFromMobile = useCallback(() => {
     setIsMobileNavOpen(false);
-    setShowLoginModal(true);
-  }, []);
+    openLoginModal();
+  }, [openLoginModal]);
 
   const handleOpenSignupFromMobile = useCallback(() => {
     setIsMobileNavOpen(false);
-    setShowSignupModal(true);
-  }, []);
+    openSignupModal();
+  }, [openSignupModal]);
 
   return (
     <AnimatedHeaderWrapper>
@@ -134,8 +131,8 @@ export function Header() {
 
       <div className="action-buttons hidden items-center gap-2 md:flex">
         <AuthAccountAction
-          onOpenLogin={() => setShowLoginModal(true)}
-          onOpenSignup={() => setShowSignupModal(true)}
+          onOpenLogin={openLoginModal}
+          onOpenSignup={openSignupModal}
           buttonClassName={actionButtonClass}
         />
         <ModeToggle />
@@ -171,32 +168,6 @@ export function Header() {
           <Link href="/jobs">Find Jobs</Link>
         </Button>
       </div>
-
-      <Modal
-        open={showLoginModal}
-        className="max-w-sm! p-8"
-        onOpenChange={setShowLoginModal}
-        title="Login to Your Account"
-        description="Enter your credentials to access your account"
-      >
-        <LoginForm
-          setShowLoginModal={setShowLoginModal}
-          setShowSignupModal={setShowSignupModal}
-        />
-      </Modal>
-
-      <Modal
-        open={showSignupModal}
-        className="max-w-sm! p-8"
-        onOpenChange={setShowSignupModal}
-        title="Create Your Account"
-        description="Sign up to start applying for jobs"
-      >
-        <SignUpForm
-          setShowLoginModal={setShowLoginModal}
-          setShowSignupModal={setShowSignupModal}
-        />
-      </Modal>
     </AnimatedHeaderWrapper>
   );
 }
