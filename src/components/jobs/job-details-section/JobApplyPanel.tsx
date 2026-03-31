@@ -27,6 +27,17 @@ export function JobApplyPanel({ jobId }: { jobId: number }) {
       return;
     }
 
+    const isCandidate = user.roles.includes("candidate");
+    if (!isCandidate) {
+      showToast({
+        type: "warning",
+        title: "Candidate account required",
+        description:
+          "Please sign out and login with a candidate account to apply for jobs.",
+      });
+      return;
+    }
+
     if (!coverLetter.trim()) {
       showToast({
         type: "warning",

@@ -16,6 +16,7 @@ import { formatDate } from "@/utils/jobs/utils";
 import type { Job } from "@/types/jobs/jobs";
 import { employerApi } from "@/services/employerApi";
 import { showToast } from "@/config/ToastConfig";
+import ConfirmationModal from "@/components/modals/ConfirmationModal";
 
 interface JobApplicationsProps {
   job: Job;
@@ -26,6 +27,10 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingAppId, setUpdatingAppId] = useState<number | null>(null);
+  const [pendingAction, setPendingAction] = useState<{
+    app: Application;
+    action: "view" | "accepted" | "rejected";
+  } | null>(null);
 
   React.useEffect(() => {
     const run = async () => {
@@ -120,6 +125,31 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
     await updateAppStatus(app.id, status);
   };
 
+  const runConfirmedAction = async () => {
+    if (!pendingAction) return;
+
+    if (pendingAction.action === "view") {
+      await handleViewResume(pendingAction.app);
+      return;
+    }
+
+    await handleStatusAction(pendingAction.app, pendingAction.action);
+  };
+
+  const confirmationTitle =
+    pendingAction?.action === "view"
+      ? "View Resume"
+      : pendingAction?.action === "accepted"
+        ? "Accept Application"
+        : "Reject Application";
+
+  const confirmationDescription =
+    pendingAction?.action === "view"
+      ? "Open the applicant's resume? This will mark the application as reviewed if it is still pending."
+      : pendingAction?.action === "accepted"
+        ? "Are you sure you want to mark this application as accepted?"
+        : "Are you sure you want to reject this application?";
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
@@ -210,7 +240,7 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                   <Button
                     variant="outline"
                     className="w-full gap-2 justify-center"
-                    onClick={() => void handleViewResume(app)}
+                    onClick={() => setPendingAction({ app, action: "view" })}
                     disabled={updatingAppId === app.id}
                   >
                     <HugeiconsIcon icon={Download01Icon} size={18} />
@@ -221,7 +251,9 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                     <Button
                       variant="default"
                       className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => void handleStatusAction(app, "accepted")}
+                      onClick={() =>
+                        setPendingAction({ app, action: "accepted" })
+                      }
                       disabled={updatingAppId === app.id}
                     >
                       <HugeiconsIcon icon={Tick01Icon} size={18} />
@@ -230,7 +262,9 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
                     <Button
                       variant="destructive"
                       className="flex-1 gap-1.5"
-                      onClick={() => void handleStatusAction(app, "rejected")}
+                      onClick={() =>
+                        setPendingAction({ app, action: "rejected" })
+                      }
                       disabled={updatingAppId === app.id}
                     >
                       <HugeiconsIcon icon={Cancel01Icon} size={18} />
@@ -243,6 +277,27 @@ export function JobApplications({ job, onBack }: JobApplicationsProps) {
           })}
         </div>
       )}
+
+      <ConfirmationModal
+        open={Boolean(pendingAction)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingAction(null);
+          }
+        }}
+        title={confirmationTitle}
+        description={confirmationDescription}
+        confirmLabel="Confirm"
+        cancelLabel="Cancel"
+        onConfirm={() => {
+          void runConfirmedAction();
+          setPendingAction(null);
+        }}
+        onCancel={() => setPendingAction(null)}
+        variant={
+          pendingAction?.action === "rejected" ? "destructive" : "default"
+        }
+      />
     </div>
   );
 }

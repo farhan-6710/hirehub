@@ -22,6 +22,7 @@ interface AuthContextType {
     email: string,
     password: string,
     fullName: string,
+    role: "candidate" | "employer",
   ) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -101,9 +102,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     fullName: string,
+    role: "candidate" | "employer",
   ) => {
     try {
-      const data = await authApi.signup(email, password, fullName);
+      const data = await authApi.signup(email, password, fullName, role);
       if (data.status === "success") {
         setUser({
           id: data.user.id,

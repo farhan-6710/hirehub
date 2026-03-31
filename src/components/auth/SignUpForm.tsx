@@ -57,6 +57,7 @@ const SignUpForm = ({
       const email = formData.get("new-email") as string;
       const password = formData.get("new-password") as string;
       const confirmPassword = formData.get("confirm-password") as string;
+      const role = formData.get("role") as "candidate" | "employer";
 
       if (password !== confirmPassword) {
         showToast({
@@ -67,7 +68,7 @@ const SignUpForm = ({
         return;
       }
 
-      await signUpWithEmail(email, password, fullName);
+      await signUpWithEmail(email, password, fullName, role || "candidate");
 
       showToast({
         type: "success",
@@ -120,6 +121,38 @@ const SignUpForm = ({
         }}
       >
         <div className="space-y-4 mb-4">
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, x: -20 },
+              visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
+            }}
+            className="flex gap-4 p-1 bg-muted/50 rounded-lg"
+          >
+            <label className="flex-1 relative cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="candidate"
+                defaultChecked
+                className="peer sr-only"
+              />
+              <div className="text-center py-2 px-4 rounded-md text-sm font-medium transition-all peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm text-muted-foreground hover:text-foreground">
+                Candidate
+              </div>
+            </label>
+            <label className="flex-1 relative cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="employer"
+                className="peer sr-only"
+              />
+              <div className="text-center py-2 px-4 rounded-md text-sm font-medium transition-all peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm text-muted-foreground hover:text-foreground">
+                Employer
+              </div>
+            </label>
+          </motion.div>
+
           <motion.div
             variants={{
               hidden: { opacity: 0, x: -20 },

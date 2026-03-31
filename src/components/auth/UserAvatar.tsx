@@ -11,6 +11,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
+import Modal from "@/components/modals/Modal";
 import { showToast } from "@/config/ToastConfig";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -28,6 +29,7 @@ const UserAvatar = () => {
   const { user, signOut } = useAuth();
 
   const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleSignOutConfirm = async () => {
     try {
@@ -119,7 +121,10 @@ const UserAvatar = () => {
 
           {/* Main Menu Items */}
           <div className="py-1">
-            <DropdownMenuItem className="cursor-pointer px-3 py-2.5 focus:bg-accent">
+            <DropdownMenuItem
+              className="cursor-pointer px-3 py-2.5 focus:bg-accent"
+              onClick={() => setShowProfileModal(true)}
+            >
               <HugeiconsIcon
                 icon={UserIcon}
                 className="mr-3 size-4 text-muted-foreground"
@@ -191,6 +196,34 @@ const UserAvatar = () => {
         onCancel={() => setShowSignOutModal(false)}
         variant="destructive"
       />
+
+      <Modal
+        open={showProfileModal}
+        onOpenChange={setShowProfileModal}
+        className="max-w-lg p-6"
+        title="Profile"
+        description="View your profile details"
+      >
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h3 className="text-xl font-semibold text-foreground">Profile</h3>
+            <p className="text-sm text-muted-foreground">
+              View your account details.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card/30 p-4 space-y-2">
+            <p className="text-sm text-muted-foreground">Name</p>
+            <p className="font-medium text-foreground">{getUserName()}</p>
+            <p className="text-sm text-muted-foreground pt-2">Email</p>
+            <p className="font-medium text-foreground">{user?.email}</p>
+            <p className="text-sm text-muted-foreground pt-2">Roles</p>
+            <p className="font-medium text-foreground">
+              {(user?.roles ?? []).join(", ") || "candidate"}
+            </p>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

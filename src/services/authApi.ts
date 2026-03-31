@@ -34,11 +34,12 @@ export const authApi = {
     email: string,
     password: string,
     name: string,
+    role: "candidate" | "employer",
   ): Promise<AuthResponse> {
     const response = await axiosInstance({
       method: API_URL.AUTH.SIGNUP.type,
       url: API_URL.AUTH.SIGNUP.url,
-      data: { email, password, name },
+      data: { email, password, name, role },
     });
     return response.data;
   },
