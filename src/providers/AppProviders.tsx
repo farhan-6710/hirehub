@@ -7,7 +7,7 @@ import { ThemeProvider } from "./ThemeProvider";
 import { AuthProvider } from "./authContext";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthModalProvider } from "./AuthModalContext";
-import { EmployerAccessProvider } from "./EmployerAccessContext";
+import { RoleAccessProvider } from "./RoleAccessContext";
 
 export default function AppProviders({
   children,
@@ -25,10 +25,10 @@ export default function AppProviders({
         >
           <AuthProvider>
             <AuthModalProvider>
-              <EmployerAccessProvider>
+              <RoleAccessProvider>
                 {children}
                 <Toaster position="top-right" richColors closeButton />
-              </EmployerAccessProvider>
+              </RoleAccessProvider>
             </AuthModalProvider>
           </AuthProvider>
         </ThemeProvider>

@@ -7,9 +7,18 @@ export interface AuthResponse {
     name: string;
     email: string;
     picture?: string;
-    roles?: Array<"candidate" | "employer">;
-    role?: "candidate" | "employer";
+    role: "candidate" | "employer";
   };
+  employerProfile: {
+    companyName: string;
+    companyLogo: string;
+    industry: string;
+    headquartersLocation: string;
+    website: string;
+    companyDescription: string;
+    contactEmail: string;
+    contactPhone: string;
+  } | null;
   token?: string;
   error?: string;
 }

@@ -9,7 +9,7 @@ import { PostJobTab } from "@/components/employer/post-job/PostJobTab";
 import { ProfileTab } from "@/components/employer/profile/ProfileTab";
 import { SettingsTab } from "@/components/employer/settings/SettingsTab";
 import { useAuth } from "@/providers/authContext";
-import { useEmployerAccess } from "@/providers/EmployerAccessContext";
+import { useEmployerAccess } from "@/providers/RoleAccessContext";
 
 export default function EmployerPage() {
   const { user, loading } = useAuth();
@@ -28,7 +28,7 @@ export default function EmployerPage() {
     return tab && allowedTabs.includes(tab) ? tab : "dashboard";
   });
 
-  const isEmployer = Boolean(user?.roles.includes("employer"));
+  const isEmployer = user?.role === "employer";
 
   useEffect(() => {
     if (!loading && !isEmployer) {

@@ -1,14 +1,25 @@
+"use client";
+
 import React, { useState } from "react";
 import { PageBackgroundWrapper } from "../../shared/PageBackgroundWrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PlusSignIcon, Delete01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { jobsApi } from "@/services/jobsApi";
 import { showToast } from "@/config/ToastConfig";
+import { useAuth } from "@/providers/authContext";
 
 export function PostJobTab() {
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [currentSkill, setCurrentSkill] = useState("");
@@ -19,15 +30,13 @@ export function PostJobTab() {
   const [responsibilities, setResponsibilities] = useState<string[]>([]);
   const [currentResponsibility, setCurrentResponsibility] = useState("");
 
-  const addListItem = (
-    e: React.KeyboardEvent<HTMLInputElement>,
+  const addToList = (
     currentValue: string,
     setList: React.Dispatch<React.SetStateAction<string[]>>,
     list: string[],
     setCurrentValue: React.Dispatch<React.SetStateAction<string>>,
   ) => {
-    if (e.key === "Enter" && currentValue.trim()) {
-      e.preventDefault();
+    if (currentValue.trim()) {
       if (!list.includes(currentValue.trim())) {
         setList([...list, currentValue.trim()]);
       }
@@ -51,8 +60,6 @@ export function PostJobTab() {
 
       const formData = new FormData(e.currentTarget);
       const title = String(formData.get("title") ?? "").trim();
-      const companyName = String(formData.get("companyName") ?? "").trim();
-      const location = String(formData.get("location") ?? "").trim();
       const workplaceType = String(formData.get("workplaceType") ?? "") as
         | "remote"
         | "hybrid"
@@ -77,6 +84,29 @@ export function PostJobTab() {
       );
 
       if (
+        !user?.employerProfile?.companyName ||
+        !user?.employerProfile?.headquartersLocation
+      ) {
+        showToast({
+          type: "warning",
+          title: "Employer profile required",
+          description:
+            "Please complete your employer profile with company name and headquarters location before posting a job.",
+        });
+        return;
+      }
+
+      const descriptionLines = description.split(/\r\n|\r|\n/).length;
+      if (descriptionLines > 180) {
+        showToast({
+          type: "warning",
+          title: "Description too long",
+          description: "Job description must not exceed 180 lines.",
+        });
+        return;
+      }
+
+      if (
         requirements.length === 0 ||
         responsibilities.length === 0 ||
         skills.length === 0
@@ -92,8 +122,6 @@ export function PostJobTab() {
 
       await jobsApi.createJob({
         title,
-        companyName,
-        location,
         workplaceType,
         jobType,
         minSalary,
@@ -150,7 +178,12 @@ export function PostJobTab() {
           {/* Job Basics */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold border-b border-border pb-2">
-              Basic Details
+              {user?.employerProfile?.companyName || "Company Not Set"}
+              <span className="mx-2 text-muted-foreground">•</span>
+              <span className="text-muted-foreground text-base font-medium">
+                {user?.employerProfile?.headquartersLocation ||
+                  "Location Not Set"}
+              </span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -163,67 +196,53 @@ export function PostJobTab() {
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Company Name
-                </label>
-                <Input
-                  name="companyName"
-                  placeholder="e.g. TechCorp"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Location
-                </label>
-                <Input
-                  name="location"
-                  placeholder="e.g. New York, Remote, etc."
-                  required
-                />
-              </div>
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col justify-end">
                 <label className="text-sm font-medium text-foreground">
                   Workplace Type
                 </label>
-                <select
-                  name="workplaceType"
-                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="remote">Remote</option>
-                  <option value="on_site">On-site</option>
-                  <option value="hybrid">Hybrid</option>
-                </select>
+                <Select name="workplaceType" defaultValue="remote">
+                  <SelectTrigger className="w-full bg-background/50 h-10">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="remote">Remote</SelectItem>
+                    <SelectItem value="on_site">On-site</SelectItem>
+                    <SelectItem value="hybrid">Hybrid</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col justify-end">
                 <label className="text-sm font-medium text-foreground">
                   Job Type
                 </label>
-                <select
-                  name="jobType"
-                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="full_time">Full-time</option>
-                  <option value="part_time">Part-time</option>
-                  <option value="contract">Contract</option>
-                  <option value="internship">Internship</option>
-                  <option value="freelance">Freelance</option>
-                </select>
+                <Select name="jobType" defaultValue="full_time">
+                  <SelectTrigger className="w-full bg-background/50 h-10">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full_time">Full-time</SelectItem>
+                    <SelectItem value="part_time">Part-time</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
+                    <SelectItem value="internship">Internship</SelectItem>
+                    <SelectItem value="freelance">Freelance</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col justify-end">
                 <label className="text-sm font-medium text-foreground">
                   Experience Level
                 </label>
-                <select
-                  name="experienceLevel"
-                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="fresher">Fresher</option>
-                  <option value="junior">Junior</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="senior">Senior</option>
-                </select>
+                <Select name="experienceLevel" defaultValue="intermediate">
+                  <SelectTrigger className="w-full bg-background/50 h-10">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fresher">Fresher</SelectItem>
+                    <SelectItem value="junior">Junior</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="senior">Senior</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -234,18 +253,20 @@ export function PostJobTab() {
               Compensation
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col justify-end">
                 <label className="text-sm font-medium text-foreground">
                   Currency
                 </label>
-                <select
-                  name="currency"
-                  className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="INR">INR (₹)</option>
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                </select>
+                <Select name="currency" defaultValue="INR">
+                  <SelectTrigger className="w-full bg-background/50 h-10">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="INR">INR (₹)</SelectItem>
+                    <SelectItem value="USD">USD ($)</SelectItem>
+                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
@@ -286,49 +307,72 @@ export function PostJobTab() {
               </label>
               <Textarea
                 name="description"
-                placeholder="Describe the role comprehensively..."
-                className="min-h-30 bg-background/50"
+                placeholder="Describe the role comprehensively (max 180 lines)..."
+                className="min-h-32 bg-background/50 text-foreground"
+                rows={8}
                 required
               />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
-                Requirements (Press Enter to add)
+                Requirements
               </label>
-              <Input
-                value={currentRequirement}
-                onChange={(e) => setCurrentRequirement(e.target.value)}
-                onKeyDown={(e) =>
-                  addListItem(
-                    e,
-                    currentRequirement,
-                    setRequirements,
-                    requirements,
-                    setCurrentRequirement,
-                  )
-                }
-                placeholder="e.g. 3+ years of experience in React"
-              />
+              <div className="flex gap-2 isolate">
+                <Input
+                  value={currentRequirement}
+                  onChange={(e) => setCurrentRequirement(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addToList(
+                        currentRequirement,
+                        setRequirements,
+                        requirements,
+                        setCurrentRequirement,
+                      );
+                    }
+                  }}
+                  placeholder="e.g. 3+ years of experience in React"
+                  className="bg-background/50"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() =>
+                    addToList(
+                      currentRequirement,
+                      setRequirements,
+                      requirements,
+                      setCurrentRequirement,
+                    )
+                  }
+                  className="shrink-0 gap-2 px-6"
+                >
+                  <HugeiconsIcon icon={PlusSignIcon} size={16} />
+                  Add
+                </Button>
+              </div>
               {requirements.length > 0 && (
-                <ul className="space-y-1 mt-2 p-4 bg-background/30 rounded-lg border border-border">
+                <ul className="space-y-2 mt-3 p-4 bg-background/30 rounded-xl border border-border/50">
                   {requirements.map((req, idx) => (
                     <li
                       key={idx}
-                      className="flex items-start justify-between text-sm text-foreground/80 gap-4"
+                      className="flex items-start justify-between text-sm text-foreground/90 gap-4 group"
                     >
-                      <span className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5">•</span>
-                        {req}
+                      <span className="flex items-start gap-2 flex-1">
+                        <span className="text-primary mt-0.5 shrink-0">•</span>
+                        <span>{req}</span>
                       </span>
                       <button
                         type="button"
                         onClick={() =>
                           removeListItem(req, setRequirements, requirements)
                         }
-                        className="text-muted-foreground hover:text-destructive shrink-0"
+                        className="text-destructive hover:text-destructive/80 shrink-0 transition-colors"
+                        title="Remove"
                       >
-                        <HugeiconsIcon icon={Delete01Icon} size={16} />
+                        <HugeiconsIcon icon={Delete01Icon} size={18} />
                       </button>
                     </li>
                   ))}
@@ -336,34 +380,55 @@ export function PostJobTab() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 pt-2">
               <label className="text-sm font-medium text-foreground">
-                Responsibilities (Press Enter to add)
+                Responsibilities
               </label>
-              <Input
-                value={currentResponsibility}
-                onChange={(e) => setCurrentResponsibility(e.target.value)}
-                onKeyDown={(e) =>
-                  addListItem(
-                    e,
-                    currentResponsibility,
-                    setResponsibilities,
-                    responsibilities,
-                    setCurrentResponsibility,
-                  )
-                }
-                placeholder="e.g. Build reusable frontend components"
-              />
+              <div className="flex gap-2 isolate">
+                <Input
+                  value={currentResponsibility}
+                  onChange={(e) => setCurrentResponsibility(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addToList(
+                        currentResponsibility,
+                        setResponsibilities,
+                        responsibilities,
+                        setCurrentResponsibility,
+                      );
+                    }
+                  }}
+                  placeholder="e.g. Build reusable frontend components"
+                  className="bg-background/50"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() =>
+                    addToList(
+                      currentResponsibility,
+                      setResponsibilities,
+                      responsibilities,
+                      setCurrentResponsibility,
+                    )
+                  }
+                  className="shrink-0 gap-2 px-6"
+                >
+                  <HugeiconsIcon icon={PlusSignIcon} size={16} />
+                  Add
+                </Button>
+              </div>
               {responsibilities.length > 0 && (
-                <ul className="space-y-1 mt-2 p-4 bg-background/30 rounded-lg border border-border">
+                <ul className="space-y-2 mt-3 p-4 bg-background/30 rounded-xl border border-border/50">
                   {responsibilities.map((res, idx) => (
                     <li
                       key={idx}
-                      className="flex items-start justify-between text-sm text-foreground/80 gap-4"
+                      className="flex items-start justify-between text-sm text-foreground/90 gap-4 group"
                     >
-                      <span className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5">•</span>
-                        {res}
+                      <span className="flex items-start gap-2 flex-1">
+                        <span className="text-primary mt-0.5 shrink-0">•</span>
+                        <span>{res}</span>
                       </span>
                       <button
                         type="button"
@@ -374,9 +439,10 @@ export function PostJobTab() {
                             responsibilities,
                           )
                         }
-                        className="text-muted-foreground hover:text-destructive shrink-0"
+                        className="text-destructive hover:text-destructive/80 shrink-0 transition-colors"
+                        title="Remove"
                       >
-                        <HugeiconsIcon icon={Delete01Icon} size={16} />
+                        <HugeiconsIcon icon={Delete01Icon} size={18} />
                       </button>
                     </li>
                   ))}
@@ -384,44 +450,63 @@ export function PostJobTab() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 pt-2">
               <label className="text-sm font-medium text-foreground">
-                Skills Needed (Press Enter to add)
+                Skills Needed
               </label>
-              <Input
-                value={currentSkill}
-                onChange={(e) => setCurrentSkill(e.target.value)}
-                onKeyDown={(e) =>
-                  addListItem(
-                    e,
-                    currentSkill,
-                    setSkills,
-                    skills,
-                    setCurrentSkill,
-                  )
-                }
-                placeholder="e.g. React, Node.js"
-              />
-              <div className="flex flex-wrap gap-2 pt-2">
-                {skills.map((skill) => (
-                  <div
-                    key={skill}
-                    className="flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {skill}
-                    <button
-                      type="button"
-                      onClick={() => removeListItem(skill, setSkills, skills)}
-                      className="hover:text-foreground"
-                    >
-                      <HugeiconsIcon icon={Delete01Icon} size={14} />
-                    </button>
-                  </div>
-                ))}
+              <div className="flex gap-2 isolate">
+                <Input
+                  value={currentSkill}
+                  onChange={(e) => setCurrentSkill(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addToList(
+                        currentSkill,
+                        setSkills,
+                        skills,
+                        setCurrentSkill,
+                      );
+                    }
+                  }}
+                  placeholder="e.g. React, Node.js"
+                  className="bg-background/50"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() =>
+                    addToList(currentSkill, setSkills, skills, setCurrentSkill)
+                  }
+                  className="shrink-0 gap-2 px-6"
+                >
+                  <HugeiconsIcon icon={PlusSignIcon} size={16} />
+                  Add
+                </Button>
               </div>
+              {skills.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-3">
+                  {skills.map((skill) => (
+                    <div
+                      key={skill}
+                      className="flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 pl-3 pr-2 py-1.5 rounded-full text-sm font-medium animate-in fade-in zoom-in-95"
+                    >
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => removeListItem(skill, setSkills, skills)}
+                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-full p-0.5 transition-colors"
+                        title="Remove"
+                      >
+                        <HugeiconsIcon icon={Delete01Icon} size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2 pt-4 border-t border-border/50 max-w-full md:max-w-xs">
               <label className="text-sm font-medium text-foreground">
                 Application Deadline
               </label>
@@ -429,7 +514,7 @@ export function PostJobTab() {
                 name="applicationDeadline"
                 type="date"
                 required
-                className="w-full md:w-1/3 bg-background/50"
+                className="w-full bg-background/50 block"
               />
             </div>
           </div>
@@ -438,14 +523,14 @@ export function PostJobTab() {
             <Button
               variant="outline"
               type="button"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-11 px-8"
             >
               Save as Draft
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="gap-2 w-full sm:w-auto shadow-md"
+              className="gap-2 w-full sm:w-auto h-11 px-10 shadow-md"
             >
               <HugeiconsIcon icon={PlusSignIcon} size={18} />
               {isSubmitting ? "Posting..." : "Post Job"}

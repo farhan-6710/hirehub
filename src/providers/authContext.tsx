@@ -10,7 +10,11 @@ interface AppUser {
   name: string;
   email: string;
   picture: string;
-  roles: Array<"candidate" | "employer">;
+  role: "candidate" | "employer";
+  employerProfile: {
+    companyName: string;
+    headquartersLocation: string;
+  } | null;
 }
 
 interface AuthContextType {
@@ -58,8 +62,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             name: data.user.name,
             email: data.user.email,
             picture: data.user.picture || "",
-            roles: data.user.roles ?? (data.user.role ? [data.user.role] : []),
+            role: data.user.role || "candidate",
+            employerProfile: data.employerProfile
+              ? {
+                  companyName: data.employerProfile.companyName,
+                  headquartersLocation:
+                    data.employerProfile.headquartersLocation,
+                }
+              : null,
           });
+          console.log("User authenticated:", data.user);
           setMemoryAuthStatus(true);
         } else {
           setMemoryAuthStatus(false);
@@ -87,7 +99,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: data.user.name,
           email: data.user.email,
           picture: data.user.picture || "",
-          roles: data.user.roles ?? (data.user.role ? [data.user.role] : []),
+          role: data.user.role || "candidate",
+          employerProfile: data.employerProfile
+            ? {
+                companyName: data.employerProfile.companyName,
+                headquartersLocation: data.employerProfile.headquartersLocation,
+              }
+            : null,
         });
         setMemoryAuthStatus(true);
       } else {
@@ -112,7 +130,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: data.user.name,
           email: data.user.email,
           picture: data.user.picture || "",
-          roles: data.user.roles ?? (data.user.role ? [data.user.role] : []),
+          role: data.user.role || "candidate",
+          employerProfile: data.employerProfile
+            ? {
+                companyName: data.employerProfile.companyName,
+                headquartersLocation: data.employerProfile.headquartersLocation,
+              }
+            : null,
         });
         setMemoryAuthStatus(true);
       } else {

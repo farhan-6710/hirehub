@@ -7,11 +7,13 @@ import { jobsApi } from "@/services/jobsApi";
 import { showToast } from "@/config/ToastConfig";
 import { useAuth } from "@/providers/authContext";
 import { useAuthModal } from "@/providers/AuthModalContext";
+import { useCandidateAccess } from "@/providers/RoleAccessContext";
 import { ResumeUploadContainer } from "./ResumeUploadContainer";
 
 export function JobApplyPanel({ jobId }: { jobId: number }) {
   const { user } = useAuth();
   const { openLoginModal } = useAuthModal();
+  const { openCandidateAccessModal } = useCandidateAccess();
   const [coverLetter, setCoverLetter] = React.useState("");
   const [resumeFile, setResumeFile] = React.useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -27,14 +29,9 @@ export function JobApplyPanel({ jobId }: { jobId: number }) {
       return;
     }
 
-    const isCandidate = user.roles.includes("candidate");
+    const isCandidate = user.role === "candidate";
     if (!isCandidate) {
-      showToast({
-        type: "warning",
-        title: "Candidate account required",
-        description:
-          "Please sign out and login with a candidate account to apply for jobs.",
-      });
+      openCandidateAccessModal();
       return;
     }
 
@@ -72,8 +69,19 @@ export function JobApplyPanel({ jobId }: { jobId: number }) {
       setCoverLetter("");
       setResumeFile(null);
     } catch (error) {
-      const apiError = (error as { response?: { data?: { error?: string } } })
-        ?.response?.data?.error;
+      const errorResponse = error as {
+        response?: { status?: number; data?: { error?: string } };
+      };
+      const apiError = errorResponse?.response?.data?.error;
+
+      if (errorResponse?.response?.status === 409) {
+        showToast({
+          type: "warning",
+          title: "Already applied",
+          description: apiError || "You have already applied for this job.",
+        });
+        return;
+      }
 
       showToast({
         type: "error",

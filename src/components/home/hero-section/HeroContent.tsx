@@ -5,14 +5,14 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/authContext";
-import { useEmployerAccess } from "@/providers/EmployerAccessContext";
+import { useEmployerAccess } from "@/providers/RoleAccessContext";
 
 const HeroContent = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { openEmployerAccessModal } = useEmployerAccess();
 
-  const isEmployer = Boolean(user?.roles.includes("employer"));
+  const isEmployer = user?.role === "employer";
 
   const handlePostJobClick = () => {
     if (isEmployer) {

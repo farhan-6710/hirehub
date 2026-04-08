@@ -17,8 +17,6 @@ interface JobDetailsResponse {
 
 export interface CreateJobPayload {
   title: string;
-  companyName: string;
-  location: string;
   workplaceType: "remote" | "hybrid" | "on_site";
   jobType: "full_time" | "part_time" | "internship" | "freelance" | "contract";
   minSalary: number;

@@ -217,9 +217,9 @@ const UserAvatar = () => {
             <p className="font-medium text-foreground">{getUserName()}</p>
             <p className="text-sm text-muted-foreground pt-2">Email</p>
             <p className="font-medium text-foreground">{user?.email}</p>
-            <p className="text-sm text-muted-foreground pt-2">Roles</p>
+            <p className="text-sm text-muted-foreground pt-2">Role</p>
             <p className="font-medium text-foreground">
-              {(user?.roles ?? []).join(", ") || "candidate"}
+              {user?.role || "candidate"}
             </p>
           </div>
         </div>
