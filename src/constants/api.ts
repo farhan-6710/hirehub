@@ -75,6 +75,10 @@ export const API_URL = {
       type: REQUEST_TYPE.GET,
       url: (jobId: number) => withApiV1(`/employer/jobs/${jobId}/applications`),
     },
+    DELETE_JOB: {
+      type: REQUEST_TYPE.DELETE,
+      url: (jobId: number) => withApiV1(`/employer/jobs/${jobId}`),
+    },
     UPDATE_APPLICATION_STATUS: {
       type: REQUEST_TYPE.PATCH,
       url: (applicationId: number) =>

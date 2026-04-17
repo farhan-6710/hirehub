@@ -20,7 +20,7 @@ interface AppUser {
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (role?: "candidate" | "employer") => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (
     email: string,
@@ -86,8 +86,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     fetchUser();
   }, []);
 
-  const signInWithGoogle = async () => {
-    window.location.href = API_URL.AUTH.GOOGLE_INIT.url;
+  const signInWithGoogle = async (role?: "candidate" | "employer") => {
+    const url = new URL(API_URL.AUTH.GOOGLE_INIT.url);
+    if (role) {
+      url.searchParams.set("role", role);
+    }
+    window.location.href = url.toString();
   };
 
   const signInWithEmail = async (email: string, password: string) => {

@@ -52,13 +52,21 @@ export function PostJobTab() {
     setList(list.filter((item) => item !== itemToRemove));
   };
 
+  const finalizeList = (list: string[], currentValue: string) => {
+    const trimmedCurrent = currentValue.trim();
+    if (!trimmedCurrent) return list;
+    if (list.includes(trimmedCurrent)) return list;
+    return [...list, trimmedCurrent];
+  };
+
   const handlePostJob = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
 
     try {
       setIsSubmitting(true);
 
-      const formData = new FormData(e.currentTarget);
+      const formData = new FormData(form);
       const title = String(formData.get("title") ?? "").trim();
       const workplaceType = String(formData.get("workplaceType") ?? "") as
         | "remote"
@@ -82,6 +90,30 @@ export function PostJobTab() {
       const applicationDeadline = String(
         formData.get("applicationDeadline") ?? "",
       );
+
+      const finalizedRequirements = finalizeList(
+        requirements,
+        currentRequirement,
+      );
+      const finalizedResponsibilities = finalizeList(
+        responsibilities,
+        currentResponsibility,
+      );
+      const finalizedSkills = finalizeList(skills, currentSkill);
+
+      // Keep UI in sync if user typed an item but clicked submit directly.
+      if (finalizedRequirements.length !== requirements.length) {
+        setRequirements(finalizedRequirements);
+        setCurrentRequirement("");
+      }
+      if (finalizedResponsibilities.length !== responsibilities.length) {
+        setResponsibilities(finalizedResponsibilities);
+        setCurrentResponsibility("");
+      }
+      if (finalizedSkills.length !== skills.length) {
+        setSkills(finalizedSkills);
+        setCurrentSkill("");
+      }
 
       if (
         !user?.employerProfile?.companyName ||
@@ -107,9 +139,9 @@ export function PostJobTab() {
       }
 
       if (
-        requirements.length === 0 ||
-        responsibilities.length === 0 ||
-        skills.length === 0
+        finalizedRequirements.length === 0 ||
+        finalizedResponsibilities.length === 0 ||
+        finalizedSkills.length === 0
       ) {
         showToast({
           type: "warning",
@@ -129,9 +161,9 @@ export function PostJobTab() {
         currency,
         experienceLevel,
         description,
-        requirements,
-        responsibilities,
-        skills,
+        requirements: finalizedRequirements,
+        responsibilities: finalizedResponsibilities,
+        skills: finalizedSkills,
         applicationDeadline,
       });
 
@@ -141,10 +173,13 @@ export function PostJobTab() {
         description: "Your job is now live.",
       });
 
-      e.currentTarget.reset();
+      form.reset();
       setSkills([]);
+      setCurrentSkill("");
       setRequirements([]);
+      setCurrentRequirement("");
       setResponsibilities([]);
+      setCurrentResponsibility("");
     } catch (error) {
       const apiError = (error as { response?: { data?: { error?: string } } })
         ?.response?.data?.error;

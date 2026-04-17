@@ -15,11 +15,16 @@ import {
 } from "@/utils/jobs/utils";
 import type { JobCardProps } from "@/types/jobs/components";
 
-export function JobCard({ job, onClick, href }: JobCardProps) {
+export function JobCard({ job, onClick, href, footerActions }: JobCardProps) {
   const statusBadge = getStatusBadge(job.status);
 
   const content = (
-    <div className="group relative rounded-2xl border border-muted-foreground/20 bg-card/20 backdrop-blur-md p-6 transition-all hover:bg-card/30 cursor-pointer">
+    <div
+      className={
+        "group relative rounded-2xl border border-muted-foreground/20 bg-card/20 backdrop-blur-md p-6 transition-all hover:bg-card/30 " +
+        (onClick ? "cursor-pointer" : "")
+      }
+    >
       <Badge
         variant={statusBadge.variant}
         className={
@@ -101,6 +106,15 @@ export function JobCard({ job, onClick, href }: JobCardProps) {
           <p className="text-sm text-foreground/80 leading-relaxed">
             {job.description}
           </p>
+
+          {footerActions ? (
+            <div
+              className="mt-5 border-t border-border/60 pt-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {footerActions}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -112,6 +126,10 @@ export function JobCard({ job, onClick, href }: JobCardProps) {
         {content}
       </div>
     );
+  }
+
+  if (footerActions) {
+    return <div className="h-full">{content}</div>;
   }
 
   return <Link href={href ?? `/jobs/${job.id}`}>{content}</Link>;

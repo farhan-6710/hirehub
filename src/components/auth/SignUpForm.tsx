@@ -18,6 +18,9 @@ const SignUpForm = ({
   setShowSignupModal,
 }: SignUpFormProps) => {
   const { signInWithGoogle, signUpWithEmail } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<"candidate" | "employer">(
+    "candidate",
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -33,7 +36,7 @@ const SignUpForm = ({
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
-      await signInWithGoogle();
+      await signInWithGoogle(selectedRole);
       setShowSignupModal(false);
     } catch {
       showToast({
@@ -134,6 +137,7 @@ const SignUpForm = ({
                 name="role"
                 value="candidate"
                 defaultChecked
+                onChange={() => setSelectedRole("candidate")}
                 className="peer sr-only"
               />
               <div className="text-center py-2 px-4 rounded-md text-sm font-medium transition-all peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm text-muted-foreground hover:text-foreground">
@@ -145,6 +149,7 @@ const SignUpForm = ({
                 type="radio"
                 name="role"
                 value="employer"
+                onChange={() => setSelectedRole("employer")}
                 className="peer sr-only"
               />
               <div className="text-center py-2 px-4 rounded-md text-sm font-medium transition-all peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm text-muted-foreground hover:text-foreground">

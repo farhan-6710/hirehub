@@ -73,6 +73,12 @@ interface UpdateApplicationStatusResponse {
   error?: string;
 }
 
+interface DeleteEmployerJobResponse {
+  status: string;
+  message: string;
+  error?: string;
+}
+
 export const employerApi = {
   async getDashboard(): Promise<EmployerDashboardResponse> {
     const response = await axiosInstance({
@@ -107,6 +113,15 @@ export const employerApi = {
     const response = await axiosInstance({
       method: API_URL.EMPLOYER.JOB_APPLICATIONS.type,
       url: API_URL.EMPLOYER.JOB_APPLICATIONS.url(jobId),
+    });
+
+    return response.data;
+  },
+
+  async deleteJob(jobId: number): Promise<DeleteEmployerJobResponse> {
+    const response = await axiosInstance({
+      method: API_URL.EMPLOYER.DELETE_JOB.type,
+      url: API_URL.EMPLOYER.DELETE_JOB.url(jobId),
     });
 
     return response.data;

@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import type { ReactNode } from "react";
 
 import type { JobListItem } from "@/types/jobs/jobs";
 
@@ -20,6 +21,7 @@ export interface JobCardProps {
   job: JobListItem;
   onClick?: () => void;
   href?: string;
+  footerActions?: ReactNode;
 }
 
 export interface FiltersPanelProps {

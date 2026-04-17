@@ -6,11 +6,16 @@ import { employerApi } from "@/services/employerApi";
 import type { Job } from "@/types/jobs/jobs";
 import { showToast } from "@/config/ToastConfig";
 import { Button } from "@/components/ui/button";
+import ConfirmationModal from "@/components/modals/ConfirmationModal";
+import { useRouter } from "next/navigation";
 
 export function MyJobsTab() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [employerJobs, setEmployerJobs] = useState<Job[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [pendingDeleteJob, setPendingDeleteJob] = useState<Job | null>(null);
+  const [deletingJobId, setDeletingJobId] = useState<number | null>(null);
 
   React.useEffect(() => {
     const run = async () => {
@@ -34,6 +39,37 @@ export function MyJobsTab() {
   }, []);
 
   const selectedJob = employerJobs.find((j) => j.id === selectedJobId);
+
+  const handleDeleteJob = async () => {
+    if (!pendingDeleteJob) return;
+
+    try {
+      setDeletingJobId(pendingDeleteJob.id);
+      await employerApi.deleteJob(pendingDeleteJob.id);
+
+      setEmployerJobs((prev) =>
+        prev.filter((job) => job.id !== pendingDeleteJob.id),
+      );
+
+      showToast({
+        type: "success",
+        title: "Job deleted",
+        description: "The job was removed successfully.",
+      });
+    } catch (error) {
+      const apiError = (error as { response?: { data?: { error?: string } } })
+        ?.response?.data?.error;
+
+      showToast({
+        type: "error",
+        title: "Failed to delete job",
+        description: apiError || "Please try again.",
+      });
+    } finally {
+      setDeletingJobId(null);
+      setPendingDeleteJob(null);
+    }
+  };
 
   if (selectedJob) {
     return (
@@ -80,11 +116,54 @@ export function MyJobsTab() {
               <JobCard
                 key={job.id}
                 job={job}
-                onClick={() => setSelectedJobId(job.id)}
+                onClick={() => router.push(`/jobs/${job.id}`)}
+                footerActions={
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setSelectedJobId(job.id)}
+                      className="h-9 flex-1 text-sm"
+                    >
+                      See Applications
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => setPendingDeleteJob(job)}
+                      className="h-9 flex-1 text-sm"
+                      disabled={deletingJobId === job.id}
+                    >
+                      {deletingJobId === job.id ? "Deleting..." : "Delete Job"}
+                    </Button>
+                  </div>
+                }
               />
             ))}
           </div>
         )}
+
+        <ConfirmationModal
+          open={Boolean(pendingDeleteJob)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setPendingDeleteJob(null);
+            }
+          }}
+          title="Delete Job"
+          description={
+            pendingDeleteJob
+              ? `Are you sure you want to delete \"${pendingDeleteJob.title}\"? This action cannot be undone.`
+              : "Are you sure you want to delete this job?"
+          }
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          onConfirm={() => {
+            void handleDeleteJob();
+          }}
+          onCancel={() => setPendingDeleteJob(null)}
+          variant="destructive"
+        />
       </div>
     </PageBackgroundWrapper>
   );
