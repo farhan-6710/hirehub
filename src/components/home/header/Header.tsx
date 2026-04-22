@@ -153,7 +153,7 @@ export function Header() {
           >
             <AiAssistant
               className="h-full border-0 rounded-none shadow-none"
-              title="ShopNow Assistant"
+              title="Hirehub Assistant"
               placeholder="Ask about products, orders, or anything..."
               context={[]}
             />
