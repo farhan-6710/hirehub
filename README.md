@@ -1,5 +1,7 @@
 # HireHub
 
+![HireHub](client/public/app-screenshot.png)
+
 Job board for candidates (browse and apply) and employers (post jobs, review applications). Auth is email/password or Google; roles are `candidate` and `employer` on the user row.
 
 Monorepo: Next.js app in `client/`, Express API in `server/`. No root workspace.
