@@ -123,8 +123,8 @@ bun run dev
 
 Axios calls `process.env.NEXT_PUBLIC_SERVER_URL` (see `client/src/constants/api.ts`). That value is baked in at Vercel build time. Git repo is this monorepo; set Vercel **Root Directory** to `client`. Point the server `CLIENT_URL` at the Vercel origin.
 
-| Piece | Platform | URL |
-| --- | --- | --- |
-| Client | Vercel | https://hirehub-brown.vercel.app/ |
-| API | Render | https://hirehub-backend-asif.onrender.com |
-| Database | Neon (PostgreSQL) | `DATABASE_URL` |
+| Piece | Platform | URL | Account |
+| --- | --- | --- | --- |
+| Client | Vercel | https://hirehub-brown.vercel.app/ | main — `itz.me.**********@gmail.com` |
+| API | Render | https://hirehub-backend-mebq.onrender.com | second — `f4****67@gmail.com` |
+| Database | Neon (PostgreSQL) | `DATABASE_URL` | — |
