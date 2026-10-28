@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/db';
 import { AuthRequest } from '../middlewares/authMiddleware';
-import { JobType, WorkplaceType, ExperienceLevel } from '@prisma/client';
+import {
+  JobType,
+  WorkplaceType,
+  ExperienceLevel,
+  type Prisma,
+} from '@prisma/client';
 
 interface CreateJobBody {
   title?: string;
@@ -207,7 +212,8 @@ const createJob = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const createdJob = await prisma.$transaction(async (tx) => {
+    const createdJob = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
       const employerProfile = await tx.employerProfile.findUnique({
         where: { userId },
         select: { id: true, companyName: true, headquartersLocation: true },

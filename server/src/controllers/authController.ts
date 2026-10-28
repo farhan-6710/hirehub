@@ -5,6 +5,7 @@ import { generateToken, AUTH_COOKIE_NAME } from '../utils/generateToken';
 import { Request, Response } from 'express';
 import { googleClient, GOOGLE_OAUTH_REDIRECT_URL } from '../utils/googleAuth';
 import { AuthRequest } from '../middlewares/authMiddleware';
+import type { Prisma } from '@prisma/client';
 
 interface SignupBody {
   name?: string;
@@ -73,18 +74,20 @@ const signup = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const createdUserData = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          name,
-          email: normalizedEmail,
-          password: hashedPassword,
-          role: normalizedRole,
-        },
-      });
+    const createdUserData = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        const user = await tx.user.create({
+          data: {
+            name,
+            email: normalizedEmail,
+            password: hashedPassword,
+            role: normalizedRole,
+          },
+        });
 
-      return { user };
-    });
+        return { user };
+      },
+    );
 
     // generate JWT
     const token = generateToken(createdUserData.user.id, res);
