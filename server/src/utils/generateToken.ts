@@ -1,26 +1,35 @@
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 export const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'jwt-token';
 
-export const generateToken = (userId: number, res: Response) => {
+const TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 7;
+
+// Same options for set and clear, so logout always removes the cookie.
+const authCookieOptions = (): CookieOptions => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+  };
+};
+
+export const generateToken = (userId: number, res: Response): void => {
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
     throw new Error('JWT_SECRET is not defined in environment variables');
   }
-  const payload = {
-    id: userId,
-  };
-  const token = jwt.sign(payload, secret, {
-    expiresIn: '7d',
-  });
+
+  const token = jwt.sign({ id: userId }, secret, { expiresIn: '7d' });
 
   res.cookie(AUTH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    ...authCookieOptions(),
+    maxAge: TOKEN_TTL_MS,
   });
-  return token;
+};
+
+export const clearAuthCookie = (res: Response): void => {
+  res.clearCookie(AUTH_COOKIE_NAME, authCookieOptions());
 };

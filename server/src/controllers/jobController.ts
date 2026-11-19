@@ -5,8 +5,9 @@ import {
   JobType,
   WorkplaceType,
   ExperienceLevel,
-  type Prisma,
+  Prisma,
 } from '@prisma/client';
+import { hasValidResumeSignature, toSafeFileName } from '../utils/resumeFile';
 
 interface CreateJobBody {
   title?: string;
@@ -27,6 +28,41 @@ interface ApplyForJobBody {
   coverLetter?: string;
 }
 
+// Never select resume bytes in API responses.
+const APPLICATION_SUMMARY_SELECT = {
+  id: true,
+  jobId: true,
+  applicantUserId: true,
+  status: true,
+  coverLetter: true,
+  resumeFileName: true,
+  createdAt: true,
+} satisfies Prisma.ApplicationSelect;
+
+const isNonEmptyStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) &&
+  value.length > 0 &&
+  value.every((item) => typeof item === 'string' && item.trim().length > 0);
+
+const getJobEnumError = (
+  workplaceType: string,
+  jobType: string,
+  experienceLevel: string,
+): string | null => {
+  if (!Object.values(WorkplaceType).includes(workplaceType as WorkplaceType)) {
+    return `workplaceType must be one of ${Object.values(WorkplaceType).join(', ')}`;
+  }
+  if (!Object.values(JobType).includes(jobType as JobType)) {
+    return `jobType must be one of ${Object.values(JobType).join(', ')}`;
+  }
+  if (
+    !Object.values(ExperienceLevel).includes(experienceLevel as ExperienceLevel)
+  ) {
+    return `experienceLevel must be one of ${Object.values(ExperienceLevel).join(', ')}`;
+  }
+  return null;
+};
+
 const getAllOpenJobs = async (req: Request, res: Response) => {
   try {
     const jobs = await prisma.job.findMany({
@@ -45,7 +81,7 @@ const getAllOpenJobs = async (req: Request, res: Response) => {
         currency: true,
         experienceLevel: true,
         description: true,
-        peopleApplied: true,
+        _count: { select: { applications: true } },
         status: true,
         createdAt: true,
         updatedAt: true,
@@ -58,7 +94,10 @@ const getAllOpenJobs = async (req: Request, res: Response) => {
     return res.status(200).json({
       status: 'success',
       count: jobs.length,
-      jobs,
+      jobs: jobs.map(({ _count, ...job }) => ({
+        ...job,
+        peopleApplied: _count.applications,
+      })),
     });
   } catch (error) {
     console.error('Error in getAllOpenJobs:', error);
@@ -72,7 +111,7 @@ const getJobById = async (req: Request, res: Response) => {
   try {
     const jobId = Number(req.params.jobId);
 
-    if (!Number.isFinite(jobId)) {
+    if (!Number.isInteger(jobId)) {
       return res.status(400).json({ error: 'jobId must be a valid number' });
     }
 
@@ -91,6 +130,7 @@ const getJobById = async (req: Request, res: Response) => {
             skill: true,
           },
         },
+        _count: { select: { applications: true } },
       },
     });
 
@@ -102,6 +142,7 @@ const getJobById = async (req: Request, res: Response) => {
       status: 'success',
       job: {
         ...job,
+        peopleApplied: job._count.applications,
         skills: job.jobSkills.map((jobSkill) => jobSkill.skill.name),
       },
     });
@@ -115,24 +156,7 @@ const getJobById = async (req: Request, res: Response) => {
 
 const createJob = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({
-        error: 'Unauthorized',
-      });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    });
-
-    if (!user || user.role !== 'employer') {
-      return res.status(403).json({
-        error: 'Only employer accounts can create jobs',
-      });
-    }
+    const userId = req.user!.id;
 
     const {
       title,
@@ -169,25 +193,38 @@ const createJob = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (!Array.isArray(requirements) || requirements.length === 0) {
+    const enumError = getJobEnumError(workplaceType, jobType, experienceLevel);
+    if (enumError) {
+      return res.status(400).json({ error: enumError });
+    }
+
+    if (!isNonEmptyStringArray(requirements)) {
       return res.status(400).json({
         error: 'requirements must be a non-empty array of strings',
       });
     }
 
-    if (!Array.isArray(responsibilities) || responsibilities.length === 0) {
+    if (!isNonEmptyStringArray(responsibilities)) {
       return res.status(400).json({
         error: 'responsibilities must be a non-empty array of strings',
       });
     }
 
-    if (!Array.isArray(skills) || skills.length === 0) {
+    if (!isNonEmptyStringArray(skills)) {
       return res.status(400).json({
         error: 'skills must be a non-empty array of strings',
       });
     }
 
-    if (Number(maxSalary) < Number(minSalary)) {
+    const min = Number(minSalary);
+    const max = Number(maxSalary);
+    if (!Number.isFinite(min) || !Number.isFinite(max) || min < 0) {
+      return res.status(400).json({
+        error: 'minSalary and maxSalary must be non-negative numbers',
+      });
+    }
+
+    if (max < min) {
       return res.status(400).json({
         error: 'maxSalary must be greater than or equal to minSalary',
       });
@@ -235,8 +272,8 @@ const createJob = async (req: AuthRequest, res: Response) => {
           location: employerProfile.headquartersLocation,
           workplaceType,
           jobType,
-          minSalary: Number(minSalary),
-          maxSalary: Number(maxSalary),
+          minSalary: min,
+          maxSalary: max,
           currency,
           experienceLevel,
           description,
@@ -319,25 +356,10 @@ const createJob = async (req: AuthRequest, res: Response) => {
 
 const applyForJob = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    });
-
-    if (!user || user.role !== 'candidate') {
-      return res.status(403).json({
-        error: 'Only candidate accounts can apply for jobs',
-      });
-    }
+    const userId = req.user!.id;
 
     const jobId = Number(req.params.jobId);
-    if (!Number.isFinite(jobId)) {
+    if (!Number.isInteger(jobId)) {
       return res.status(400).json({ error: 'jobId must be a valid number' });
     }
 
@@ -351,13 +373,15 @@ const applyForJob = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'resumeFile is required' });
     }
 
+    if (!hasValidResumeSignature(req.file.originalname, req.file.buffer)) {
+      return res.status(400).json({
+        error: 'Resume file content does not match a PDF, DOC, or DOCX file',
+      });
+    }
+
     const job = await prisma.job.findUnique({
       where: { id: jobId },
-      select: {
-        id: true,
-        postedByUserId: true,
-        status: true,
-      },
+      select: { id: true, postedByUserId: true, status: true },
     });
 
     if (!job) {
@@ -371,47 +395,21 @@ const applyForJob = async (req: AuthRequest, res: Response) => {
     }
 
     if (job.postedByUserId === userId) {
-      console.warn(
-        `User ${userId} attempted to apply for their own job ${job.postedByUserId}`,
-      );
       return res
         .status(400)
         .json({ error: 'You cannot apply to your own job' });
     }
-
-    const existing = await prisma.application.findUnique({
-      where: {
-        jobId_applicantUserId: {
-          jobId,
-          applicantUserId: userId,
-        },
-      },
-    });
-
-    if (existing) {
-      return res
-        .status(409)
-        .json({ error: 'You have already applied for this job' });
-    }
-
-    const resumeUrl = `/uploads/resumes/${req.file.filename}`;
 
     const application = await prisma.application.create({
       data: {
         jobId,
         applicantUserId: userId,
         coverLetter: coverLetter.trim(),
-        resumeUrl,
+        resumeFile: new Uint8Array(req.file.buffer),
+        resumeFileName: toSafeFileName(req.file.originalname),
+        resumeMimeType: req.file.mimetype,
       },
-    });
-
-    const peopleApplied = await prisma.application.count({
-      where: { jobId },
-    });
-
-    await prisma.job.update({
-      where: { id: jobId },
-      data: { peopleApplied },
+      select: APPLICATION_SUMMARY_SELECT,
     });
 
     return res.status(201).json({
@@ -420,6 +418,15 @@ const applyForJob = async (req: AuthRequest, res: Response) => {
       application,
     });
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      return res
+        .status(409)
+        .json({ error: 'You have already applied for this job' });
+    }
+
     console.error('Error in applyForJob:', error);
     return res.status(500).json({ error: 'internal server error' });
   }

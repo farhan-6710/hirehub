@@ -5,9 +5,11 @@ import jobRoutes from './routes/jobRoutes';
 import employerRoutes from './routes/employerRoutes';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import path from 'path';
 
 const app = express();
+
+// Render runs behind a proxy; needed for correct client IPs in rate limiting.
+app.set('trust proxy', 1);
 
 app.use(
   cors({
@@ -18,7 +20,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // API routes
 app.use('/api/v1/auth', authRoutes);

@@ -1,11 +1,11 @@
 import { prisma } from '../config/db';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { generateToken, AUTH_COOKIE_NAME } from '../utils/generateToken';
+import { generateToken, clearAuthCookie } from '../utils/generateToken';
+import { EMAIL_PATTERN, getPasswordError } from '../utils/validation';
 import { Request, Response } from 'express';
 import { googleClient, GOOGLE_OAUTH_REDIRECT_URL } from '../utils/googleAuth';
 import { AuthRequest } from '../middlewares/authMiddleware';
-import type { Prisma } from '@prisma/client';
 
 interface SignupBody {
   name?: string;
@@ -13,6 +13,8 @@ interface SignupBody {
   password?: string;
   role?: 'candidate' | 'employer';
 }
+
+const MAX_NAME_LENGTH = 100;
 
 interface GoogleOAuthState {
   role?: 'candidate' | 'employer';
@@ -43,10 +45,25 @@ const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body as SignupBody;
 
-    if (!name || !email || !password) {
+    if (!name?.trim() || !email || !password) {
       return res.status(400).json({
         error: 'name, email and password are required',
       });
+    }
+
+    if (name.trim().length > MAX_NAME_LENGTH) {
+      return res
+        .status(400)
+        .json({ error: `name must be ${MAX_NAME_LENGTH} characters or fewer` });
+    }
+
+    if (!EMAIL_PATTERN.test(email)) {
+      return res.status(400).json({ error: 'email must be a valid address' });
+    }
+
+    const passwordError = getPasswordError(password);
+    if (passwordError) {
+      return res.status(400).json({ error: passwordError });
     }
 
     const normalizedRole = role ?? 'candidate';
@@ -57,7 +74,7 @@ const signup = async (req: Request, res: Response) => {
       });
     }
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
     // check if user already exists
     const userExists = await prisma.user.findUnique({
@@ -74,35 +91,27 @@ const signup = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const createdUserData = await prisma.$transaction(
-      async (tx: Prisma.TransactionClient) => {
-        const user = await tx.user.create({
-          data: {
-            name,
-            email: normalizedEmail,
-            password: hashedPassword,
-            role: normalizedRole,
-          },
-        });
-
-        return { user };
+    const user = await prisma.user.create({
+      data: {
+        name: name.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        role: normalizedRole,
       },
-    );
+    });
 
-    // generate JWT
-    const token = generateToken(createdUserData.user.id, res);
+    generateToken(user.id, res);
 
     return res.status(201).json({
       status: 'success',
       user: {
-        id: createdUserData.user.id,
-        name: createdUserData.user.name,
-        email: createdUserData.user.email,
-        picture: createdUserData.user.picture,
-        role: normalizedRole,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        role: user.role,
       },
       employerProfile: null,
-      token,
     });
   } catch (error) {
     console.error('Error in signup:', error);
@@ -117,13 +126,13 @@ const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // check all fields entered
-    if (!email || !password) {
+    if (typeof email !== 'string' || typeof password !== 'string') {
       return res.status(400).json({
         error: 'email and password are required',
       });
     }
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
     // check if user exists in the table
     const user = await prisma.user.findUnique({
@@ -148,8 +157,7 @@ const login = async (req: Request, res: Response) => {
       });
     }
 
-    // generate JWT
-    const token = generateToken(user.id, res);
+    generateToken(user.id, res);
 
     return res.status(200).json({
       status: 'success',
@@ -161,7 +169,6 @@ const login = async (req: Request, res: Response) => {
         role: user.role,
       },
       employerProfile: user.employerProfile,
-      token,
     });
   } catch (error) {
     console.error('Error in login:', error);
@@ -172,13 +179,7 @@ const login = async (req: Request, res: Response) => {
 };
 
 const logout = async (req: Request, res: Response) => {
-  // remove the jwt from cookies
-  res.cookie(AUTH_COOKIE_NAME, '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    expires: new Date(0),
-  });
+  clearAuthCookie(res);
 
   return res.status(200).json({
     status: 'success',
@@ -298,4 +299,69 @@ const googleAuthCallback = async (req: Request, res: Response) => {
   }
 };
 
-export { signup, login, logout, getMe, googleAuthInit, googleAuthCallback };
+const changePassword = async (req: AuthRequest, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body as {
+      currentPassword?: unknown;
+      newPassword?: unknown;
+    };
+
+    if (typeof currentPassword !== 'string' || !currentPassword) {
+      return res.status(400).json({ error: 'currentPassword is required' });
+    }
+
+    const passwordError = getPasswordError(newPassword);
+    if (passwordError) {
+      return res
+        .status(400)
+        .json({ error: passwordError.replace('password', 'newPassword') });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: { password: true },
+    });
+
+    if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+      return res.status(400).json({ error: 'current password is incorrect' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword as string, 10);
+    await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { password: hashedPassword },
+    });
+
+    return res
+      .status(200)
+      .json({ status: 'success', message: 'password updated' });
+  } catch (error) {
+    console.error('Error in changePassword:', error);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+};
+
+// Deletes the user; jobs, applications and employer profile cascade in the DB.
+const deleteAccount = async (req: AuthRequest, res: Response) => {
+  try {
+    await prisma.user.delete({ where: { id: req.user!.id } });
+    clearAuthCookie(res);
+    return res
+      .status(200)
+      .json({ status: 'success', message: 'account deleted' });
+  } catch (error) {
+    console.error('Error in deleteAccount:', error);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+};
+
+export {
+  signup,
+  login,
+  logout,
+  getMe,
+  googleAuthInit,
+  googleAuthCallback,
+  changePassword,
+  deleteAccount,
+};

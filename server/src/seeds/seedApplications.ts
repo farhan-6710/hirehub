@@ -46,24 +46,13 @@ const main = async () => {
       },
       update: {
         status: seed.status,
-        resumeUrl: seed.resumeUrl,
         coverLetter: seed.coverLetter,
       },
       create: {
         jobId: job.id,
         applicantUserId: applicant.id,
         status: seed.status,
-        resumeUrl: seed.resumeUrl,
         coverLetter: seed.coverLetter,
-      },
-    });
-
-    await prisma.job.update({
-      where: { id: job.id },
-      data: {
-        peopleApplied: await prisma.application.count({
-          where: { jobId: job.id },
-        }),
       },
     });
   }

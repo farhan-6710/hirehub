@@ -943,7 +943,6 @@ export interface SeedApplication {
   applicantName: string;
   applicantEmail: string;
   status: ApplicationStatus;
-  resumeUrl: string;
   coverLetter: string;
 }
 
@@ -953,7 +952,6 @@ export const APPLICATION_SEEDS: SeedApplication[] = [
     applicantName: 'Alice Johnson',
     applicantEmail: 'alice.j@example.com',
     status: 'pending',
-    resumeUrl: '#',
     coverLetter:
       'I am a full-stack engineer with 3 years of experience in Next.js and backend API development.',
   },
@@ -962,7 +960,6 @@ export const APPLICATION_SEEDS: SeedApplication[] = [
     applicantName: 'Bob Smith',
     applicantEmail: 'bob.smith@example.com',
     status: 'pending',
-    resumeUrl: '#',
     coverLetter:
       'I can contribute user-centered design systems and polished interaction design.',
   },
@@ -971,7 +968,6 @@ export const APPLICATION_SEEDS: SeedApplication[] = [
     applicantName: 'Diana Prince',
     applicantEmail: 'diana.p@example.com',
     status: 'pending',
-    resumeUrl: '#',
     coverLetter:
       'My cloud and CI/CD experience with AWS and Kubernetes aligns with this role.',
   },
@@ -980,7 +976,6 @@ export const APPLICATION_SEEDS: SeedApplication[] = [
     applicantName: 'Edward Elric',
     applicantEmail: 'ed.elric@example.com',
     status: 'pending',
-    resumeUrl: '#',
     coverLetter:
       'Experienced in SQL and dashboards with strong ownership and analytical thinking.',
   },

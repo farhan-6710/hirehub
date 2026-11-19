@@ -61,7 +61,6 @@ model Job {
   requirements        String[]
   responsibilities    String[]
   applicationDeadline DateTime         @db.Date @map("application_deadline")
-  peopleApplied       Int              @default(0) @map("people_applied")
   status              JobStatus        @default(open)
   createdAt           DateTime         @default(now()) @map("created_at")
   updatedAt           DateTime         @updatedAt @map("updated_at")
@@ -86,7 +85,10 @@ model Application {
   jobId           Int               @map("job_id")
   applicantUserId Int               @map("applicant_user_id")
   status          ApplicationStatus @default(pending)
-  resumeUrl       String            @map("resume_url")
+  // Resume file bytes live in Postgres (Render's disk is not persistent).
+  resumeFile      Bytes?            @map("resume_file")
+  resumeFileName  String?           @map("resume_file_name")
+  resumeMimeType  String?           @map("resume_mime_type")
   coverLetter     String?           @map("cover_letter")
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")

@@ -3,104 +3,42 @@ import { ApplicationStatus } from '@prisma/client';
 import { prisma } from '../config/db';
 import { AuthRequest } from '../middlewares/authMiddleware';
 
-const normalizeLegacyStatus = (status: string): ApplicationStatus => {
-  if (status === 'review' || status === 'interview') return 'reviewed';
-  if (status === 'hired') return 'accepted';
+// Every route here runs after `protect` + `requireRole('employer')`.
 
-  if (
-    status === 'pending' ||
-    status === 'reviewed' ||
-    status === 'accepted' ||
-    status === 'rejected'
-  ) {
-    return status;
-  }
+const APPLICATION_STATUSES = Object.values(ApplicationStatus);
 
-  return 'pending';
-};
-
-const ensureEmployerRole = async (userId: number) => {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { role: true },
-  });
-
-  return user?.role === 'employer';
+const parseId = (value: string | string[] | undefined): number | null => {
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
 };
 
 const getEmployerDashboard = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user!.id;
+    const ownJobs = { job: { postedByUserId: userId } };
 
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const isEmployer = await ensureEmployerRole(userId);
-
-    if (!isEmployer) {
-      return res
-        .status(403)
-        .json({ error: 'Only employer accounts can access this route' });
-    }
-
-    const [activeJobs, totalApplicants, recentApplications] = await Promise.all(
-      [
-        prisma.job.count({
-          where: {
-            postedByUserId: userId,
-            status: 'open',
-          },
-        }),
-        prisma.application.count({
-          where: {
-            job: {
-              postedByUserId: userId,
-            },
-          },
-        }),
-        prisma.application.findMany({
-          where: {
-            job: {
-              postedByUserId: userId,
-            },
-          },
-          include: {
-            applicant: {
-              select: {
-                name: true,
-              },
-            },
-            job: {
-              select: {
-                title: true,
-              },
-            },
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 8,
-        }),
-      ],
-    );
-
-    const [reviewedApplications, acceptedCandidates] = await Promise.all([
-      prisma.application.count({
-        where: {
-          job: {
-            postedByUserId: userId,
-          },
-          status: 'reviewed',
+    const [
+      activeJobs,
+      totalApplicants,
+      reviewedApplications,
+      acceptedCandidates,
+      recentApplications,
+    ] = await Promise.all([
+      prisma.job.count({ where: { postedByUserId: userId, status: 'open' } }),
+      prisma.application.count({ where: ownJobs }),
+      prisma.application.count({ where: { ...ownJobs, status: 'reviewed' } }),
+      prisma.application.count({ where: { ...ownJobs, status: 'accepted' } }),
+      prisma.application.findMany({
+        where: ownJobs,
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          applicant: { select: { name: true } },
+          job: { select: { title: true } },
         },
-      }),
-      prisma.application.count({
-        where: {
-          job: {
-            postedByUserId: userId,
-          },
-          status: 'accepted',
-        },
+        orderBy: { createdAt: 'desc' },
+        take: 8,
       }),
     ]);
 
@@ -116,7 +54,7 @@ const getEmployerDashboard = async (req: AuthRequest, res: Response) => {
         id: entry.id,
         candidateName: entry.applicant.name,
         jobTitle: entry.job.title,
-        status: normalizeLegacyStatus(entry.status as string),
+        status: entry.status,
         appliedDate: entry.createdAt.toISOString().slice(0, 10),
       })),
     });
@@ -126,93 +64,24 @@ const getEmployerDashboard = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const getEmployerProfile = async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const isEmployer = await ensureEmployerRole(userId);
-
-    if (!isEmployer) {
-      return res
-        .status(403)
-        .json({ error: 'Only employer accounts can access this route' });
-    }
-
-    const profile = await prisma.employerProfile.findUnique({
-      where: { userId },
-    });
-
-    if (!profile) {
-      return res.status(404).json({ error: 'Employer profile not found' });
-    }
-
-    return res.status(200).json({
-      status: 'success',
-      employerProfile: {
-        companyName: profile.companyName,
-        companyLogo: profile.companyLogo,
-        industry: profile.industry,
-        headquartersLocation: profile.headquartersLocation,
-        website: profile.website,
-        companyDescription: profile.companyDescription,
-        contactEmail: profile.contactEmail,
-        contactPhone: profile.contactPhone,
-      },
-    });
-  } catch (error) {
-    console.error('Error in getEmployerProfile:', error);
-    return res.status(500).json({ error: 'internal server error' });
-  }
-};
-
 const getEmployerJobs = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const isEmployer = await ensureEmployerRole(userId);
-
-    if (!isEmployer) {
-      return res
-        .status(403)
-        .json({ error: 'Only employer accounts can access this route' });
-    }
-
     const jobs = await prisma.job.findMany({
-      where: {
-        postedByUserId: userId,
-      },
+      where: { postedByUserId: req.user!.id },
       include: {
-        jobSkills: {
-          include: {
-            skill: true,
-          },
-        },
-        _count: {
-          select: {
-            applications: true,
-          },
-        },
+        jobSkills: { include: { skill: true } },
+        _count: { select: { applications: true } },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
 
     return res.status(200).json({
       status: 'success',
       count: jobs.length,
-      jobs: jobs.map((job) => ({
+      jobs: jobs.map(({ jobSkills, _count, ...job }) => ({
         ...job,
-        peopleApplied: job._count.applications,
-        skills: job.jobSkills.map((jobSkill) => jobSkill.skill.name),
+        peopleApplied: _count.applications,
+        skills: jobSkills.map((jobSkill) => jobSkill.skill.name),
       })),
     });
   } catch (error) {
@@ -223,31 +92,13 @@ const getEmployerJobs = async (req: AuthRequest, res: Response) => {
 
 const deleteEmployerJob = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const isEmployer = await ensureEmployerRole(userId);
-
-    if (!isEmployer) {
-      return res
-        .status(403)
-        .json({ error: 'Only employer accounts can access this route' });
-    }
-
-    const jobId = Number(req.params.jobId);
-
-    if (!Number.isFinite(jobId)) {
+    const jobId = parseId(req.params.jobId);
+    if (!jobId) {
       return res.status(400).json({ error: 'jobId must be a valid number' });
     }
 
     const deleted = await prisma.job.deleteMany({
-      where: {
-        id: jobId,
-        postedByUserId: userId,
-      },
+      where: { id: jobId, postedByUserId: req.user!.id },
     });
 
     if (deleted.count === 0) {
@@ -269,35 +120,14 @@ const getJobApplicationsForEmployer = async (
   res: Response,
 ) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const isEmployer = await ensureEmployerRole(userId);
-
-    if (!isEmployer) {
-      return res
-        .status(403)
-        .json({ error: 'Only employer accounts can access this route' });
-    }
-
-    const jobId = Number(req.params.jobId);
-
-    if (!Number.isFinite(jobId)) {
+    const jobId = parseId(req.params.jobId);
+    if (!jobId) {
       return res.status(400).json({ error: 'jobId must be a valid number' });
     }
 
     const job = await prisma.job.findFirst({
-      where: {
-        id: jobId,
-        postedByUserId: userId,
-      },
-      select: {
-        id: true,
-        title: true,
-      },
+      where: { id: jobId, postedByUserId: req.user!.id },
+      select: { id: true, title: true },
     });
 
     if (!job) {
@@ -305,21 +135,17 @@ const getJobApplicationsForEmployer = async (
     }
 
     const applications = await prisma.application.findMany({
-      where: {
-        jobId: job.id,
+      where: { jobId: job.id },
+      select: {
+        id: true,
+        jobId: true,
+        status: true,
+        coverLetter: true,
+        resumeFileName: true,
+        createdAt: true,
+        applicant: { select: { id: true, name: true, email: true } },
       },
-      include: {
-        applicant: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
 
     return res.status(200).json({
@@ -332,9 +158,10 @@ const getJobApplicationsForEmployer = async (
         applicantId: entry.applicant.id,
         applicantName: entry.applicant.name,
         applicantEmail: entry.applicant.email,
-        status: normalizeLegacyStatus(entry.status as string),
+        status: entry.status,
         coverLetter: entry.coverLetter,
-        resumeUrl: entry.resumeUrl,
+        resumeFileName: entry.resumeFileName,
+        hasResume: entry.resumeFileName !== null,
         appliedDate: entry.createdAt,
       })),
     });
@@ -344,85 +171,80 @@ const getJobApplicationsForEmployer = async (
   }
 };
 
-const updateApplicationStatus = async (req: AuthRequest, res: Response) => {
+const getApplicationResume = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const isEmployer = await ensureEmployerRole(userId);
-
-    if (!isEmployer) {
-      return res
-        .status(403)
-        .json({ error: 'Only employer accounts can access this route' });
-    }
-
-    const applicationId = Number(req.params.applicationId);
-
-    if (!Number.isFinite(applicationId)) {
+    const applicationId = parseId(req.params.applicationId);
+    if (!applicationId) {
       return res
         .status(400)
         .json({ error: 'applicationId must be a valid number' });
     }
 
-    const rawStatus = String((req.body as { status?: string }).status ?? '')
-      .trim()
-      .toLowerCase();
-
-    const normalizedIncomingStatus =
-      rawStatus === 'review' || rawStatus === 'interview'
-        ? 'reviewed'
-        : rawStatus === 'hired'
-          ? 'accepted'
-          : rawStatus;
-
-    const allowedStatuses: ApplicationStatus[] = [
-      'pending',
-      'reviewed',
-      'accepted',
-      'rejected',
-    ];
-
-    if (
-      !allowedStatuses.includes(normalizedIncomingStatus as ApplicationStatus)
-    ) {
-      return res.status(400).json({
-        error: 'status must be one of pending, reviewed, accepted, rejected',
-      });
-    }
-
-    const existing = await prisma.application.findFirst({
-      where: {
-        id: applicationId,
-        job: {
-          postedByUserId: userId,
-        },
-      },
-      select: { id: true },
+    // Only the employer who posted the job can read the resume.
+    const application = await prisma.application.findFirst({
+      where: { id: applicationId, job: { postedByUserId: req.user!.id } },
+      select: { resumeFile: true, resumeFileName: true, resumeMimeType: true },
     });
 
-    if (!existing) {
+    if (!application) {
       return res
         .status(404)
         .json({ error: 'Application not found for this employer' });
     }
 
-    const updated = await prisma.application.update({
-      where: { id: applicationId },
-      data: {
-        status: normalizedIncomingStatus as ApplicationStatus,
-      },
+    if (!application.resumeFile || !application.resumeMimeType) {
+      return res
+        .status(404)
+        .json({ error: 'No resume file stored for this application' });
+    }
+
+    res.setHeader('Content-Type', application.resumeMimeType);
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${application.resumeFileName ?? 'resume'}"`,
+    );
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    return res.status(200).send(Buffer.from(application.resumeFile));
+  } catch (error) {
+    console.error('Error in getApplicationResume:', error);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+};
+
+const updateApplicationStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const applicationId = parseId(req.params.applicationId);
+    if (!applicationId) {
+      return res
+        .status(400)
+        .json({ error: 'applicationId must be a valid number' });
+    }
+
+    const status = String((req.body as { status?: string }).status ?? '')
+      .trim()
+      .toLowerCase() as ApplicationStatus;
+
+    if (!APPLICATION_STATUSES.includes(status)) {
+      return res.status(400).json({
+        error: `status must be one of ${APPLICATION_STATUSES.join(', ')}`,
+      });
+    }
+
+    const updated = await prisma.application.updateMany({
+      where: { id: applicationId, job: { postedByUserId: req.user!.id } },
+      data: { status },
     });
+
+    if (updated.count === 0) {
+      return res
+        .status(404)
+        .json({ error: 'Application not found for this employer' });
+    }
 
     return res.status(200).json({
       status: 'success',
-      application: {
-        ...updated,
-        status: normalizeLegacyStatus(updated.status as string),
-      },
+      application: { id: applicationId, status },
     });
   } catch (error) {
     console.error('Error in updateApplicationStatus:', error);
@@ -432,9 +254,9 @@ const updateApplicationStatus = async (req: AuthRequest, res: Response) => {
 
 export {
   getEmployerDashboard,
-  getEmployerProfile,
   getEmployerJobs,
   deleteEmployerJob,
   getJobApplicationsForEmployer,
+  getApplicationResume,
   updateApplicationStatus,
 };

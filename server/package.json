@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "nodemon",
     "lint": "eslint src",
+    "test:smoke": "bash scripts/smoke.sh",
     "build": "npx prisma generate && tsc",
+    "migrate:deploy": "prisma migrate deploy",
     "start": "node dist/server.js",
     "seed:user": "bun run src/seeds/seedUser.ts",
     "seed:employer-profile": "bun run src/seeds/seedEmployerProfile.ts",
@@ -26,6 +28,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.5",
     "google-auth-library": "^10.6.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1"
