@@ -48,8 +48,7 @@ export interface Job extends JobListItem {
   requirements: string[];
   responsibilities: string[];
   applicationDeadline: string;
-
-  // UI-only metadata for mock data / listing badges
+  skills?: string[];
 }
 
 export interface JobsListProps {

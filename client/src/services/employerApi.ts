@@ -9,11 +9,13 @@ export interface EmployerDashboardStats {
   acceptedCandidates: number;
 }
 
+export type ApplicationStatus = "pending" | "reviewed" | "accepted" | "rejected";
+
 export interface EmployerRecentApplication {
   id: number;
   candidateName: string;
   jobTitle: string;
-  status: "pending" | "reviewed" | "accepted" | "rejected";
+  status: ApplicationStatus;
   appliedDate: string;
 }
 
@@ -34,9 +36,10 @@ export interface EmployerJobApplication {
   applicantId: number;
   applicantName: string;
   applicantEmail: string;
-  status: "pending" | "reviewed" | "accepted" | "rejected";
+  status: ApplicationStatus;
   coverLetter: string | null;
-  resumeUrl: string;
+  resumeFileName: string | null;
+  hasResume: boolean;
   appliedDate: string;
 }
 
@@ -48,6 +51,12 @@ interface EmployerDashboardResponse {
 }
 
 interface EmployerProfileResponse {
+  status: string;
+  employerProfile: EmployerProfile | null;
+  error?: string;
+}
+
+interface SaveEmployerProfileResponse {
   status: string;
   employerProfile: EmployerProfile;
   error?: string;
@@ -69,7 +78,7 @@ interface EmployerJobApplicationsResponse {
 
 interface UpdateApplicationStatusResponse {
   status: string;
-  application: EmployerJobApplication;
+  application: { id: number; status: ApplicationStatus };
   error?: string;
 }
 
@@ -96,6 +105,23 @@ export const employerApi = {
     });
 
     return response.data;
+  },
+
+  async saveProfile(
+    profile: EmployerProfile,
+  ): Promise<SaveEmployerProfileResponse> {
+    const response = await axiosInstance({
+      method: API_URL.EMPLOYER.UPDATE_PROFILE.type,
+      url: API_URL.EMPLOYER.UPDATE_PROFILE.url,
+      data: profile,
+    });
+
+    return response.data;
+  },
+
+  // Opened directly in a new tab; the auth cookie authorises the request.
+  getResumeUrl(applicationId: number): string {
+    return API_URL.EMPLOYER.APPLICATION_RESUME.url(applicationId);
   },
 
   async getMyJobs(): Promise<EmployerJobsResponse> {
@@ -129,7 +155,7 @@ export const employerApi = {
 
   async updateApplicationStatus(
     applicationId: number,
-    status: "pending" | "reviewed" | "accepted" | "rejected",
+    status: ApplicationStatus,
   ): Promise<UpdateApplicationStatusResponse> {
     const response = await axiosInstance({
       method: API_URL.EMPLOYER.UPDATE_APPLICATION_STATUS.type,

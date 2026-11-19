@@ -19,7 +19,12 @@ export interface AuthResponse {
     contactEmail: string;
     contactPhone: string;
   } | null;
-  token?: string;
+  error?: string;
+}
+
+interface MessageResponse {
+  status: string;
+  message: string;
   error?: string;
 }
 
@@ -60,6 +65,26 @@ export const authApi = {
     const response = await axiosInstance({
       method: API_URL.AUTH.LOGOUT.type,
       url: API_URL.AUTH.LOGOUT.url,
+    });
+    return response.data;
+  },
+
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<MessageResponse> {
+    const response = await axiosInstance({
+      method: API_URL.AUTH.CHANGE_PASSWORD.type,
+      url: API_URL.AUTH.CHANGE_PASSWORD.url,
+      data: { currentPassword, newPassword },
+    });
+    return response.data;
+  },
+
+  async deleteAccount(): Promise<MessageResponse> {
+    const response = await axiosInstance({
+      method: API_URL.AUTH.DELETE_ACCOUNT.type,
+      url: API_URL.AUTH.DELETE_ACCOUNT.url,
     });
     return response.data;
   },

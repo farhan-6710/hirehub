@@ -5,6 +5,8 @@ import {
   CheckmarkCircle02Icon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
+import { showToast } from "@/config/ToastConfig";
+import { RESUME_ACCEPT, getResumeFileError } from "@/constants/resume";
 
 interface ResumeUploadContainerProps {
   resumeFile: File | null;
@@ -17,6 +19,15 @@ export function ResumeUploadContainer({
 }: ResumeUploadContainerProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
+    // Clear the input so picking the same file again still fires onChange.
+    e.target.value = "";
+    if (!file) return;
+
+    const error = getResumeFileError(file);
+    if (error) {
+      showToast({ type: "warning", title: "Resume not accepted", description: error });
+      return;
+    }
     setResumeFile(file);
   };
 
@@ -25,7 +36,7 @@ export function ResumeUploadContainer({
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium text-foreground">Resume</label>
         {resumeFile && (
-          <span className="text-xs font-medium text-primary-600 flex items-center gap-1 bg-primary-500/10 px-2 py-0.5 rounded-full border border-primary-500/20">
+          <span className="text-xs font-medium text-primary flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
             <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
             File Selected
           </span>
@@ -35,7 +46,7 @@ export function ResumeUploadContainer({
       <input
         id="resume-file-upload"
         type="file"
-        accept=".pdf,.doc,.docx"
+        accept={RESUME_ACCEPT}
         onChange={handleFileChange}
         className="sr-only"
       />
@@ -45,7 +56,7 @@ export function ResumeUploadContainer({
         className={cn(
           "group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 transition-all",
           resumeFile
-            ? "border-primary-500/50 bg-primary-500/5 hover:bg-primary-500/10"
+            ? "border-primary/50 bg-primary/5 hover:bg-primary/10"
             : "border-border bg-background/40 hover:border-primary/50 hover:bg-background/60",
         )}
       >
@@ -54,7 +65,7 @@ export function ResumeUploadContainer({
             className={cn(
               "rounded-full p-3 transition-colors",
               resumeFile
-                ? "bg-primary-500/20 text-primary-600"
+                ? "bg-primary/20 text-primary"
                 : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
             )}
           >
@@ -98,7 +109,7 @@ export function ResumeUploadContainer({
 
       {!resumeFile && (
         <p className="text-xs text-muted-foreground flex justify-between px-1">
-          <span>Accepted: PDF, DOC, DOCX</span>
+          <span>Accepted: PDF, DOC, DOCX (max 5 MB)</span>
           <span>Max size: 5MB</span>
         </p>
       )}

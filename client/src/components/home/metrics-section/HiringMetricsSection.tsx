@@ -1,29 +1,6 @@
-import { Button } from "@/components/ui/button";
 import BlurryBlobSectionWrapper from "@/components/shared/BlurryBlobSectionWrapper";
-import { brand } from "@/constants/brand";
-
-const METRICS = [
-  {
-    label: "Successful Placements",
-    value: "12,400+",
-    description: `Candidates hired through ${brand.name} in the last 12 months.`,
-  },
-  {
-    label: "Average Recruiter Response",
-    value: "18 hrs",
-    description: "Median first-response time on active applications.",
-  },
-  {
-    label: "Active Hiring Companies",
-    value: "1,850+",
-    description: "Teams currently hiring across product, design, and tech.",
-  },
-  {
-    label: "Interview Conversion Rate",
-    value: "41%",
-    description: "Qualified applications that move to interview stage.",
-  },
-];
+import { SectionEyebrow } from "@/components/shared/SectionEyebrow";
+import { HIRING_METRICS } from "@/constants/data";
 
 export default function HiringMetricsSection() {
   return (
@@ -38,25 +15,16 @@ export default function HiringMetricsSection() {
       secondBlobClassName="h-24 w-24 right-4 bottom-4 top-auto sm:right-8 lg:right-12"
     >
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
-        <p className="flex items-center gap-2 text-sm font-medium tracking-[0.18em] text-primary uppercase">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-3.5 w-3.5"
-            >
+        <SectionEyebrow
+          label="Insights"
+          icon={
+            <>
               <path d="M12 20V10" />
               <path d="m18 20-6-6-6 6" />
               <path d="M4 4h16" />
-            </svg>
-          </span>
-          Insights
-        </p>
+            </>
+          }
+        />
         <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           Hiring Metrics That Build Trust
         </h2>
@@ -104,15 +72,10 @@ export default function HiringMetricsSection() {
               </p>
             </div>
 
-            <div className="pt-1">
-              <Button size="lg" variant="glow" className="w-full sm:w-auto">
-                View Full Hiring Report
-              </Button>
-            </div>
           </div>
 
           <div className="divide-y divide-border rounded-2xl border border-border/80 bg-background/40">
-            {METRICS.map((metric) => (
+            {HIRING_METRICS.map((metric) => (
               <article
                 key={metric.label}
                 className="grid gap-2 px-5 py-5 sm:grid-cols-[210px_1fr] sm:items-center sm:gap-6"

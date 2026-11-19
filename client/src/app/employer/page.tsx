@@ -1,8 +1,8 @@
 "use client";
 
 import { MainLayout } from "./MainLayout";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, type ComponentType } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardTab } from "@/components/employer/dashboard/DashboardTab";
 import { MyJobsTab } from "@/components/employer/my-jobs/MyJobsTab";
 import { PostJobTab } from "@/components/employer/post-job/PostJobTab";
@@ -11,25 +11,31 @@ import { SettingsTab } from "@/components/employer/settings/SettingsTab";
 import { useAuth } from "@/providers/authContext";
 import { useEmployerAccess } from "@/providers/RoleAccessContext";
 
+// Keys match the tab ids in shared/brand/brandManifest.json.
+const TABS: Record<string, ComponentType> = {
+  dashboard: DashboardTab,
+  "my-jobs": MyJobsTab,
+  "post-job": PostJobTab,
+  profile: ProfileTab,
+  settings: SettingsTab,
+};
+const DEFAULT_TAB = "dashboard";
+
 export default function EmployerPage() {
   const { user, loading } = useAuth();
   const { openEmployerAccessModal } = useEmployerAccess();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [currentPage, setCurrentPage] = useState(() => {
-    const tab = searchParams.get("tab");
-    const allowedTabs = [
-      "dashboard",
-      "my-jobs",
-      "post-job",
-      "profile",
-      "settings",
-    ];
 
-    return tab && allowedTabs.includes(tab) ? tab : "dashboard";
-  });
+  // The URL is the source of truth, so links to ?tab=... switch tabs too.
+  const requestedTab = searchParams.get("tab") ?? DEFAULT_TAB;
+  const currentPage = requestedTab in TABS ? requestedTab : DEFAULT_TAB;
+  const CurrentTab = TABS[currentPage];
+
+  const navigateTo = (tab: string) =>
+    router.replace(`/employer?tab=${tab}`, { scroll: false });
 
   const isEmployer = user?.role === "employer";
-
   useEffect(() => {
     if (!loading && !isEmployer) {
       openEmployerAccessModal();
@@ -55,25 +61,9 @@ export default function EmployerPage() {
     );
   }
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case "dashboard":
-        return <DashboardTab />;
-      case "my-jobs":
-        return <MyJobsTab />;
-      case "post-job":
-        return <PostJobTab />;
-      case "profile":
-        return <ProfileTab />;
-      case "settings":
-        return <SettingsTab />;
-      default:
-        return <DashboardTab />;
-    }
-  };
   return (
-    <MainLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-      {renderPage()}
+    <MainLayout currentPage={currentPage} onNavigate={navigateTo}>
+      <CurrentTab />
     </MainLayout>
   );
 }

@@ -7,6 +7,7 @@ import { AccordionTriggerIcon } from "./AccordionTriggerIcon";
 import BlurryBlobSectionWrapper from "@/components/shared/BlurryBlobSectionWrapper";
 import { brand } from "@/constants/brand";
 import { FaqsHelpAside } from "./FaqsHelpAside";
+import { SectionEyebrow } from "@/components/shared/SectionEyebrow";
 
 export const FAQSComponent = ({
   data,
@@ -37,25 +38,17 @@ export const FAQSComponent = ({
       secondBlobClassName="h-24 w-24 left-2 bottom-2 top-auto sm:left-6 lg:left-10"
     >
       <div className="flex max-w-2xl flex-col gap-3 text-center lg:text-left">
-        <p className="flex items-center justify-center gap-2 text-sm font-medium tracking-[0.18em] text-primary uppercase lg:justify-start">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-3.5 w-3.5"
-            >
+        <SectionEyebrow
+          label="FAQs"
+          className="justify-center lg:justify-start"
+          icon={
+            <>
               <circle cx="12" cy="12" r="10" />
               <path d="M12 17h.01" />
               <path d="M10 9a2 2 0 1 1 4 0c0 1.5-2 2-2 3" />
-            </svg>
-          </span>
-          FAQs
-        </p>
+            </>
+          }
+        />
         <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           Frequently Asked Questions
         </h2>

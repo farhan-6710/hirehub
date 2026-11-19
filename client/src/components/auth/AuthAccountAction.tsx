@@ -16,12 +16,15 @@ type AuthAccountActionProps = {
   onOpenLogin: () => void;
   onOpenSignup: () => void;
   buttonClassName?: string;
+  // Text shown next to the icon (used by the mobile menu).
+  label?: string;
 };
 
 export default function AuthAccountAction({
   onOpenLogin,
   onOpenSignup,
   buttonClassName,
+  label,
 }: AuthAccountActionProps) {
   const { user } = useAuth();
 
@@ -32,8 +35,14 @@ export default function AuthAccountAction({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="md" className={buttonClassName}>
+        <Button
+          variant="outline"
+          size="md"
+          className={buttonClassName}
+          aria-label="Account menu"
+        >
           <HugeiconsIcon icon={LogIn} strokeWidth={2} className="size-4.5" />
+          {label ? <span>{label}</span> : null}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-28 mt-2">

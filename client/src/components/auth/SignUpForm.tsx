@@ -1,105 +1,64 @@
 "use client";
 
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/authContext";
-import { useEffect, useRef, useState } from "react";
 import { showToast } from "@/config/ToastConfig";
-import { motion } from "framer-motion";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ViewIcon, ViewOffSlashIcon } from "@hugeicons/core-free-icons";
+import { brand } from "@/constants/brand";
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/constants/auth";
+import { AuthFormFooter } from "./AuthFormFooter";
+import { RoleToggle, type Role } from "./RoleToggle";
+import {
+  AuthInput,
+  AuthItem,
+  PasswordInput,
+  authFormVariants,
+} from "./AuthFormParts";
 
 interface SignUpFormProps {
   setShowLoginModal: (show: boolean) => void;
   setShowSignupModal: (show: boolean) => void;
 }
 
-const SignUpForm = ({
-  setShowLoginModal,
-  setShowSignupModal,
-}: SignUpFormProps) => {
+const passwordRules = {
+  required: true,
+  minLength: PASSWORD_MIN_LENGTH,
+  maxLength: PASSWORD_MAX_LENGTH,
+  autoComplete: "new-password",
+};
+
+const SignUpForm = ({ setShowLoginModal, setShowSignupModal }: SignUpFormProps) => {
   const { signInWithGoogle, signUpWithEmail } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<"candidate" | "employer">(
-    "candidate",
-  );
-  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<Role>("candidate");
   const [loading, setLoading] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    });
+    requestAnimationFrame(() => nameRef.current?.focus());
   }, []);
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      await signInWithGoogle(selectedRole);
-      setShowSignupModal(false);
-    } catch {
-      showToast({
-        type: "error",
-        title: "Google Sign-In Failed",
-        description:
-          "Unable to sign in with Google. Please check your network connection and try again.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const password = String(formData.get("new-password"));
+
+    if (password !== String(formData.get("confirm-password"))) {
+      showToast({ type: "error", title: "Password Mismatch", description: "The passwords you entered do not match." });
+      return;
+    }
 
     try {
       setLoading(true);
-      const formData = new FormData(event.currentTarget);
-      const fullName = formData.get("new-username") as string;
-      const email = formData.get("new-email") as string;
-      const password = formData.get("new-password") as string;
-      const confirmPassword = formData.get("confirm-password") as string;
-      const role = formData.get("role") as "candidate" | "employer";
-
-      if (password !== confirmPassword) {
-        showToast({
-          type: "error",
-          title: "Password Mismatch",
-          description: "The passwords you entered do not match.",
-        });
-        return;
-      }
-
-      await signUpWithEmail(email, password, fullName, role || "candidate");
-
-      showToast({
-        type: "success",
-        title: "Account Created",
-        description: "Please check your email to verify.",
-      });
-
+      await signUpWithEmail(String(formData.get("new-email")), password, String(formData.get("full-name")), role);
+      showToast({ type: "success", title: "Account Created", description: `Welcome to ${brand.name}!` });
       setShowSignupModal(false);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to create account. Please check your information and try again.";
-
-      if (message === "user already exists with the email entered") {
-        showToast({
-          type: "error",
-          title: "Account Already Exists",
-          description: "User already exists with this email.",
-        });
-      } else {
-        showToast({
-          type: "error",
-          title: "Sign Up Failed",
-          description:
-            "Unable to create account. Please check your information and try again.",
-        });
-      }
+      showToast({
+        type: "error",
+        title: "Sign Up Failed",
+        description: error instanceof Error ? error.message : "Please check your information and try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -108,244 +67,32 @@ const SignUpForm = ({
   return (
     <div className="w-full">
       <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
-      <motion.form
-        onSubmit={handleSubmit}
-        aria-label="Sign up form"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0 },
-          visible: {
-            opacity: 1,
-            transition: {
-              staggerChildren: 0.1,
-            },
-          },
-        }}
-      >
+      <motion.form onSubmit={handleSubmit} aria-label="Sign up form" initial="hidden" animate="visible" variants={authFormVariants}>
         <div className="space-y-4 mb-4">
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, x: -20 },
-              visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-            }}
-            className="flex gap-4 p-1 bg-muted/50 rounded-lg"
-          >
-            <label className="flex-1 relative cursor-pointer">
-              <input
-                type="radio"
-                name="role"
-                value="candidate"
-                defaultChecked
-                onChange={() => setSelectedRole("candidate")}
-                className="peer sr-only"
-              />
-              <div className="text-center py-2 px-4 rounded-md text-sm font-medium transition-all peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm text-muted-foreground hover:text-foreground">
-                Candidate
-              </div>
-            </label>
-            <label className="flex-1 relative cursor-pointer">
-              <input
-                type="radio"
-                name="role"
-                value="employer"
-                onChange={() => setSelectedRole("employer")}
-                className="peer sr-only"
-              />
-              <div className="text-center py-2 px-4 rounded-md text-sm font-medium transition-all peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm text-muted-foreground hover:text-foreground">
-                Employer
-              </div>
-            </label>
-          </motion.div>
-
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, x: -20 },
-              visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-            }}
-          >
-            <label htmlFor="signup-username" className="sr-only">
-              Username
-            </label>
-            <input
-              ref={inputRef}
-              type="text"
-              id="signup-username"
-              name="new-username"
-              placeholder="Username"
-              required
-              autoComplete="username"
-              className="w-full px-4 py-2 border rounded-md transition duration-300 focus:outline-primary bg-card! text-foreground autofill:bg-background! autofill:text-foreground"
-            />
-          </motion.div>
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, x: -20 },
-              visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-            }}
-          >
-            <label htmlFor="signup-email" className="sr-only">
-              Email
-            </label>
-            <input
-              type="email"
-              id="signup-email"
-              name="new-email"
-              placeholder="Email"
-              required
-              autoComplete="email"
-              className="w-full px-4 py-2 border rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary bg-card! text-foreground autofill:bg-background! autofill:text-foreground"
-            />
-          </motion.div>
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, x: -20 },
-              visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-            }}
-          >
-            <label htmlFor="signup-password" className="sr-only">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="signup-password"
-                name="new-password"
-                placeholder="Password"
-                required
-                autoComplete="new-password"
-                className="w-full px-4 py-2 pr-10 border rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary bg-card! text-foreground autofill:bg-background! autofill:text-foreground"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? (
-                  <HugeiconsIcon icon={ViewOffSlashIcon} className="size-4.5" />
-                ) : (
-                  <HugeiconsIcon icon={ViewIcon} className="size-4.5" />
-                )}
-              </button>
-            </div>
-          </motion.div>
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, x: -20 },
-              visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-            }}
-          >
-            <label htmlFor="confirm-password" className="sr-only">
-              Confirm Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="confirm-password"
-                name="confirm-password"
-                placeholder="Confirm Password"
-                required
-                autoComplete="new-password"
-                className="w-full px-4 py-2 pr-10 border rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary bg-card! text-foreground autofill:bg-background! autofill:text-foreground"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? (
-                  <HugeiconsIcon icon={ViewOffSlashIcon} className="size-4.5" />
-                ) : (
-                  <HugeiconsIcon icon={ViewIcon} className="size-4.5" />
-                )}
-              </button>
-            </div>
-          </motion.div>
+          <RoleToggle value={role} onChange={setRole} />
+          <AuthInput ref={nameRef} id="signup-name" name="full-name" label="Full name" required maxLength={100} autoComplete="name" />
+          <AuthInput id="signup-email" name="new-email" type="email" label="Email" required autoComplete="email" />
+          <PasswordInput id="signup-password" name="new-password" label={`Password (min ${PASSWORD_MIN_LENGTH} characters)`} {...passwordRules} />
+          <PasswordInput id="confirm-password" name="confirm-password" label="Confirm Password" {...passwordRules} />
         </div>
 
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, x: -20 },
-            visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-          }}
-        >
+        <AuthItem>
           <Button type="submit" disabled={loading} className="w-full mb-4 h-10">
             {loading ? "Creating account..." : "Sign Up"}
           </Button>
-        </motion.div>
+        </AuthItem>
 
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, x: -20 },
-            visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
+        <AuthFormFooter
+          loading={loading}
+          onGoogle={() => void signInWithGoogle(role)}
+          switchPrompt="Already have an account?"
+          switchLabel="Login"
+          onSwitch={() => {
+            setShowSignupModal(false);
+            setShowLoginModal(true);
           }}
-          className="flex items-center gap-4 mb-4"
-        >
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-sm font-semibold text-muted-foreground">
-            OR
-          </span>
-          <div className="flex-1 h-px bg-border" />
-        </motion.div>
-
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, x: -20 },
-            visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-          }}
-        >
-          <Button
-            size="md"
-            type="button"
-            variant="outline"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 mb-4"
-          >
-            <i className="fab fa-google" aria-hidden="true" />
-            <span>Continue with Google</span>
-          </Button>
-        </motion.div>
-
-        <motion.p
-          variants={{
-            hidden: { opacity: 0, x: -20 },
-            visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-          }}
-          className="text-center text-sm text-muted-foreground mb-4"
-        >
-          Already have an account?{" "}
-          <button
-            type="button"
-            onClick={() => {
-              setShowSignupModal(false);
-              setShowLoginModal(true);
-            }}
-            className="text-primary hover:underline font-medium"
-          >
-            Login
-          </button>
-        </motion.p>
-
-        <motion.hr
-          variants={{
-            hidden: { opacity: 0, x: -20 },
-            visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-          }}
-          className="my-4"
+          termsAction="signing up"
         />
-
-        <motion.p
-          variants={{
-            hidden: { opacity: 0, x: -20 },
-            visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-          }}
-          className="text-xs text-muted-foreground text-center"
-        >
-          By signing up, you agree to our Terms and Policy.
-        </motion.p>
       </motion.form>
     </div>
   );

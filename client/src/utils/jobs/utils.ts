@@ -1,10 +1,11 @@
 import type { StatusBadgeConfig } from "../../types/jobs/components";
 
+// "full_time" -> "Full Time", "on-site" -> "On Site"
 export const titleize = (value: string) =>
   value
-    .split("-")
+    .split(/[-_]/)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("-");
+    .join(" ");
 
 export const formatSalary = (min: number, max: number, currency: string) => {
   const formatter = new Intl.NumberFormat("en-US", {

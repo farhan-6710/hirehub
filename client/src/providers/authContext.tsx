@@ -1,16 +1,24 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { authApi } from "@/services/authApi";
-import { setMemoryAuthStatus } from "@/utils/auth";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { authApi, type AuthResponse } from "@/services/authApi";
 import { API_URL } from "@/constants/api";
+import { getApiErrorMessage } from "@/utils/apiError";
+
+type Role = "candidate" | "employer";
 
 interface AppUser {
   id: number;
   name: string;
   email: string;
   picture: string;
-  role: "candidate" | "employer";
+  role: Role;
   employerProfile: {
     companyName: string;
     headquartersLocation: string;
@@ -20,73 +28,61 @@ interface AppUser {
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
-  signInWithGoogle: (role?: "candidate" | "employer") => Promise<void>;
+  signInWithGoogle: (role?: Role) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (
     email: string,
     password: string,
     fullName: string,
-    role: "candidate" | "employer",
+    role: Role,
   ) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const toAppUser = (data: AuthResponse): AppUser => ({
+  id: data.user.id,
+  name: data.user.name,
+  email: data.user.email,
+  picture: data.user.picture || "",
+  role: data.user.role || "candidate",
+  employerProfile: data.employerProfile
+    ? {
+        companyName: data.employerProfile.companyName,
+        headquartersLocation: data.employerProfile.headquartersLocation,
+      }
+    : null,
+});
+
+// Redux persists AI chat and feedback; drop it so the next user starts clean.
+const clearPersistedState = () => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("persist:root");
+  }
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const getApiErrorMessage = (error: unknown, fallback: string): string => {
-    const apiError = (error as { response?: { data?: { error?: string } } })
-      ?.response?.data?.error;
-
-    if (typeof apiError === "string" && apiError.trim().length > 0) {
-      return apiError;
+  const refreshUser = useCallback(async () => {
+    try {
+      const data = await authApi.me();
+      setUser(data.status === "success" ? toAppUser(data) : null);
+    } catch {
+      // 401 means signed out, which is not an error here.
+      setUser(null);
     }
-
-    if (error instanceof Error && error.message.trim().length > 0) {
-      return error.message;
-    }
-
-    return fallback;
-  };
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const data = await authApi.me();
-        if (data.status === "success") {
-          setUser({
-            id: data.user.id,
-            name: data.user.name,
-            email: data.user.email,
-            picture: data.user.picture || "",
-            role: data.user.role || "candidate",
-            employerProfile: data.employerProfile
-              ? {
-                  companyName: data.employerProfile.companyName,
-                  headquartersLocation:
-                    data.employerProfile.headquartersLocation,
-                }
-              : null,
-          });
-          console.log("User authenticated:", data.user);
-          setMemoryAuthStatus(true);
-        } else {
-          setMemoryAuthStatus(false);
-        }
-      } catch {
-        // 401 is expected when user is not logged in — not an error
-        setMemoryAuthStatus(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
   }, []);
 
-  const signInWithGoogle = async (role?: "candidate" | "employer") => {
+  useEffect(() => {
+    void refreshUser().finally(() => setLoading(false));
+  }, [refreshUser]);
+
+  const signInWithGoogle = async (role?: Role) => {
     const url = new URL(API_URL.AUTH.GOOGLE_INIT.url);
     if (role) {
       url.searchParams.set("role", role);
@@ -96,25 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      const data = await authApi.login(email, password);
-      if (data.status === "success") {
-        setUser({
-          id: data.user.id,
-          name: data.user.name,
-          email: data.user.email,
-          picture: data.user.picture || "",
-          role: data.user.role || "candidate",
-          employerProfile: data.employerProfile
-            ? {
-                companyName: data.employerProfile.companyName,
-                headquartersLocation: data.employerProfile.headquartersLocation,
-              }
-            : null,
-        });
-        setMemoryAuthStatus(true);
-      } else {
-        throw new Error(data.error || "Login failed");
-      }
+      setUser(toAppUser(await authApi.login(email, password)));
     } catch (error) {
       throw new Error(getApiErrorMessage(error, "Login failed"));
     }
@@ -124,46 +102,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     fullName: string,
-    role: "candidate" | "employer",
+    role: Role,
   ) => {
     try {
-      const data = await authApi.signup(email, password, fullName, role);
-      if (data.status === "success") {
-        setUser({
-          id: data.user.id,
-          name: data.user.name,
-          email: data.user.email,
-          picture: data.user.picture || "",
-          role: data.user.role || "candidate",
-          employerProfile: data.employerProfile
-            ? {
-                companyName: data.employerProfile.companyName,
-                headquartersLocation: data.employerProfile.headquartersLocation,
-              }
-            : null,
-        });
-        setMemoryAuthStatus(true);
-      } else {
-        throw new Error(data.error || "Signup failed");
-      }
+      setUser(toAppUser(await authApi.signup(email, password, fullName, role)));
     } catch (error) {
       throw new Error(getApiErrorMessage(error, "Signup failed"));
     }
   };
 
   const signOut = async () => {
-    // Clear cart and wishlist locally BEFORE signing out to prevent API calls with invalid tokens
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("persist:root");
-    }
-
+    clearPersistedState();
     try {
       await authApi.logout();
-    } catch (e) {
-      console.error("Logout API failed, but clearing local state anyway.", e);
+    } catch (error) {
+      console.error("Logout API failed, clearing local state anyway.", error);
     } finally {
       setUser(null);
-      setMemoryAuthStatus(false);
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      await authApi.deleteAccount();
+      clearPersistedState();
+      setUser(null);
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "Could not delete account"));
     }
   };
 
@@ -174,6 +139,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithEmail,
     signUpWithEmail,
     signOut,
+    refreshUser,
+    deleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

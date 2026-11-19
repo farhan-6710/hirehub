@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/providers/authContext";
 import {
   DropdownMenu,
@@ -9,62 +10,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useState } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
-import Modal from "@/components/modals/Modal";
 import { showToast } from "@/config/ToastConfig";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowDown01Icon,
-  UserIcon,
-  CreditCardIcon,
-  Settings01Icon,
-  HelpCircleIcon,
-  DocumentCodeIcon,
-  Logout01Icon,
-} from "@hugeicons/core-free-icons";
+import { ArrowDown01Icon, Logout01Icon } from "@hugeicons/core-free-icons";
+import { UserProfileModal } from "./UserProfileModal";
+import { UserMenuLinks } from "./UserMenuLinks";
+
+const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
 const UserAvatar = () => {
   const { user, signOut } = useAuth();
-
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const userName = user?.name || user?.email?.split("@")[0] || "User";
 
   const handleSignOutConfirm = async () => {
-    try {
-      await signOut();
-      showToast({
-        type: "success",
-        title: "Signed Out",
-        description: "You have been signed out successfully",
-      });
-    } catch {
-      showToast({
-        type: "error",
-        title: "Sign Out Failed",
-        description: "An error occurred while signing out. Please try again.",
-      });
-    }
+    await signOut();
+    showToast({ type: "success", title: "Signed Out", description: "You have been signed out successfully" });
   };
 
-  const handleSignOut = () => {
-    setShowSignOutModal(true);
-  };
-
-  const getInitials = (name?: string) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const getUserName = () => {
-    return user?.name || user?.email?.split("@")[0] || "User";
-  };
+  const avatar = (sizeClass: string, textClass: string) => (
+    <Avatar className={sizeClass}>
+      <AvatarImage src={user?.picture} alt={userName} />
+      <AvatarFallback className={`bg-primary text-primary-foreground font-medium ${textClass}`}>
+        {getInitials(userName)}
+      </AvatarFallback>
+    </Avatar>
+  );
 
   return (
     <>
@@ -74,105 +54,28 @@ const UserAvatar = () => {
             className="flex items-center gap-2 bg-card hover:bg-accent rounded-full transition-all duration-200 pl-1.5! border border-border py-1 h-auto"
             aria-label="User account menu"
           >
-            <Avatar className="h-7 w-7">
-              <AvatarImage
-                src={user?.picture} // We don't have avatar_url in the new backend yet
-                alt={getUserName()}
-              />
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-                {getInitials(getUserName())}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-sm font-medium text-foreground max-w-20 truncate">
-              {getUserName()}
-            </span>
-            <HugeiconsIcon
-              icon={ArrowDown01Icon}
-              className="size-3 text-muted-foreground"
-            />
+            {avatar("h-7 w-7", "text-xs")}
+            <span className="text-sm font-medium text-foreground max-w-20 truncate">{userName}</span>
+            <HugeiconsIcon icon={ArrowDown01Icon} className="size-3 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-56 p-0">
-          {/* User Info Header */}
-          <div className="px-3 py-3 bg-muted/50">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-9 w-9">
-                <AvatarImage
-                  src={user?.picture} // We don't have avatar_url in the new backend yet
-                  alt={getUserName()}
-                />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
-                  {getInitials(getUserName())}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {getUserName()}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user?.email}
-                </p>
-              </div>
+          <div className="px-3 py-3 bg-muted/50 flex items-center gap-3">
+            {avatar("h-9 w-9", "text-sm")}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{userName}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             </div>
           </div>
 
           <DropdownMenuSeparator />
-
-          {/* Main Menu Items */}
-          <div className="py-1">
-            <DropdownMenuItem
-              className="cursor-pointer px-3 py-2.5 focus:bg-accent"
-              onClick={() => setShowProfileModal(true)}
-            >
-              <HugeiconsIcon
-                icon={UserIcon}
-                className="mr-3 size-4 text-muted-foreground"
-              />
-              <span className="text-sm">Profile</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer px-3 py-2.5 focus:bg-accent">
-              <HugeiconsIcon
-                icon={CreditCardIcon}
-                className="mr-3 size-4 text-muted-foreground"
-              />
-              <span className="text-sm">Orders</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer px-3 py-2.5 focus:bg-accent">
-              <HugeiconsIcon
-                icon={Settings01Icon}
-                className="mr-3 size-4 text-muted-foreground"
-              />
-              <span className="text-sm">Settings</span>
-            </DropdownMenuItem>
-          </div>
+          <UserMenuLinks isEmployer={user?.role === "employer"} onOpenProfile={() => setShowProfileModal(true)} />
 
           <DropdownMenuSeparator />
-
-          {/* Support Items */}
-          <div className="py-1">
-            <DropdownMenuItem className="cursor-pointer px-3 py-2.5 focus:bg-accent">
-              <HugeiconsIcon
-                icon={HelpCircleIcon}
-                className="mr-3 size-4 text-muted-foreground"
-              />
-              <span className="text-sm">Help Center</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer px-3 py-2.5 focus:bg-accent">
-              <HugeiconsIcon
-                icon={DocumentCodeIcon}
-                className="mr-3 size-4 text-muted-foreground"
-              />
-              <span className="text-sm">Documentation</span>
-            </DropdownMenuItem>
-          </div>
-
-          <DropdownMenuSeparator />
-
-          {/* Sign Out */}
           <div className="py-1">
             <DropdownMenuItem
-              onClick={handleSignOut}
+              onClick={() => setShowSignOutModal(true)}
               className="cursor-pointer px-3 py-2.5 text-destructive focus:text-destructive focus:bg-destructive/10"
             >
               <HugeiconsIcon icon={Logout01Icon} className="mr-3 size-4" />
@@ -181,49 +84,25 @@ const UserAvatar = () => {
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
+
       <ConfirmationModal
         open={showSignOutModal}
         onOpenChange={setShowSignOutModal}
         title="Sign Out"
         description="Are you sure you want to sign out?"
-        icon={({ className }) => (
-          <HugeiconsIcon icon={Logout01Icon} className={className} />
-        )}
-        iconClassName="text-destructive"
+        icon={({ className }) => <HugeiconsIcon icon={Logout01Icon} className={className} />}
         confirmLabel="Confirm"
-        cancelLabel="Cancel"
-        onConfirm={handleSignOutConfirm}
-        onCancel={() => setShowSignOutModal(false)}
+        onConfirm={() => void handleSignOutConfirm()}
         variant="destructive"
       />
 
-      <Modal
+      <UserProfileModal
         open={showProfileModal}
         onOpenChange={setShowProfileModal}
-        className="max-w-lg p-6"
-        title="Profile"
-        description="View your profile details"
-      >
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-xl font-semibold text-foreground">Profile</h3>
-            <p className="text-sm text-muted-foreground">
-              View your account details.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-border bg-card/30 p-4 space-y-2">
-            <p className="text-sm text-muted-foreground">Name</p>
-            <p className="font-medium text-foreground">{getUserName()}</p>
-            <p className="text-sm text-muted-foreground pt-2">Email</p>
-            <p className="font-medium text-foreground">{user?.email}</p>
-            <p className="text-sm text-muted-foreground pt-2">Role</p>
-            <p className="font-medium text-foreground">
-              {user?.role || "candidate"}
-            </p>
-          </div>
-        </div>
-      </Modal>
+        name={userName}
+        email={user?.email}
+        role={user?.role}
+      />
     </>
   );
 };

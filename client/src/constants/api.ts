@@ -33,6 +33,14 @@ export const API_URL = {
       url: withApiV1("/auth/me"),
       type: REQUEST_TYPE.GET,
     },
+    CHANGE_PASSWORD: {
+      url: withApiV1("/auth/password"),
+      type: REQUEST_TYPE.PATCH,
+    },
+    DELETE_ACCOUNT: {
+      url: withApiV1("/auth/me"),
+      type: REQUEST_TYPE.DELETE,
+    },
     GOOGLE_INIT: {
       url: withApiV1("/auth/google"),
       type: REQUEST_TYPE.GET,
@@ -67,6 +75,10 @@ export const API_URL = {
       url: withApiV1("/employer/profile"),
       type: REQUEST_TYPE.GET,
     },
+    UPDATE_PROFILE: {
+      url: withApiV1("/employer/profile"),
+      type: REQUEST_TYPE.PUT,
+    },
     MY_JOBS: {
       url: withApiV1("/employer/my-jobs"),
       type: REQUEST_TYPE.GET,
@@ -83,6 +95,11 @@ export const API_URL = {
       type: REQUEST_TYPE.PATCH,
       url: (applicationId: number) =>
         withApiV1(`/employer/applications/${applicationId}/status`),
+    },
+    APPLICATION_RESUME: {
+      type: REQUEST_TYPE.GET,
+      url: (applicationId: number) =>
+        withApiV1(`/employer/applications/${applicationId}/resume`),
     },
   },
 } as const;

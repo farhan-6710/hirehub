@@ -1,6 +1,12 @@
 import { API_URL } from "@/constants/api";
 import { axiosInstance } from "./axiosInstance";
-import type { Job, JobListItem } from "@/types/jobs/jobs";
+import type {
+  ExperienceLevel,
+  Job,
+  JobListItem,
+  JobType,
+  WorkplaceType,
+} from "@/types/jobs/jobs";
 
 export interface JobsListingResponse {
   status: string;
@@ -17,12 +23,12 @@ interface JobDetailsResponse {
 
 export interface CreateJobPayload {
   title: string;
-  workplaceType: "remote" | "hybrid" | "on_site";
-  jobType: "full_time" | "part_time" | "internship" | "freelance" | "contract";
+  workplaceType: WorkplaceType;
+  jobType: JobType;
   minSalary: number;
   maxSalary: number;
   currency: string;
-  experienceLevel: "fresher" | "junior" | "intermediate" | "senior";
+  experienceLevel: ExperienceLevel;
   description: string;
   requirements: string[];
   responsibilities: string[];

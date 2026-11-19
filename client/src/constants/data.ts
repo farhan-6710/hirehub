@@ -1,8 +1,5 @@
 import { brand } from "@/constants/brand";
 
-export const DUMMY_CONTENT =
-  "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Totam aperiam expedita culpa consectetur laudantium dignissimos, libero earum laborum molestias. Quia esse temporibus saepe omnis, perferendis magni dignissimos corporis eaque facere soluta nemo impedit possimus molestias quae alias quis a deleniti at porro eius, amet inventore?";
-
 export const REVIEWS = [
   {
     name: "Ava Thompson",
@@ -45,5 +42,29 @@ export const REVIEWS = [
     rating: 4,
     quote:
       `${brand.name} made it easy to compare roles, manage applications, and stay consistent with recruiter follow-ups.`,
+  },
+];
+
+// Illustrative marketing numbers for the landing page, not live data.
+export const HIRING_METRICS = [
+  {
+    label: "Successful Placements",
+    value: "12,400+",
+    description: `Candidates hired through ${brand.name} in the last 12 months.`,
+  },
+  {
+    label: "Average Recruiter Response",
+    value: "18 hrs",
+    description: "Median first-response time on active applications.",
+  },
+  {
+    label: "Active Hiring Companies",
+    value: "1,850+",
+    description: "Teams currently hiring across product, design, and tech.",
+  },
+  {
+    label: "Interview Conversion Rate",
+    value: "41%",
+    description: "Qualified applications that move to interview stage.",
   },
 ];

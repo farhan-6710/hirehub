@@ -1,7 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Briefcase02Icon,
-  FavouriteIcon,
   Location01Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
@@ -42,20 +41,9 @@ export function JobCard({ job, onClick, href, footerActions }: JobCardProps) {
 
         {/* Content */}
         <div className="flex-1 pt-0.5">
-          <div className="flex items-start justify-between mb-1">
-            <h3 className="text-xl font-semibold text-foreground tracking-tight">
-              {job.title}
-            </h3>
-            {!onClick && (
-              <button
-                className="text-muted-foreground hover:text-foreground transition-colors ml-4 mt-1"
-                aria-label="Save Job"
-                onClick={(e) => e.preventDefault()}
-              >
-                <HugeiconsIcon icon={FavouriteIcon} className="h-5 w-5" />
-              </button>
-            )}
-          </div>
+          <h3 className="text-xl font-semibold text-foreground tracking-tight mb-1">
+            {job.title}
+          </h3>
 
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mb-4">
             <span className="text-secondary-foreground font-medium">
@@ -77,30 +65,20 @@ export function JobCard({ job, onClick, href, footerActions }: JobCardProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <Badge
-              variant="outline"
-              className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs"
-            >
-              {titleize(job.jobType)}
-            </Badge>
-            <Badge
-              variant="outline"
-              className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs capitalize"
-            >
-              {titleize(job.workplaceType)}
-            </Badge>
-            <Badge
-              variant="outline"
-              className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs capitalize"
-            >
-              {titleize(job.experienceLevel)}
-            </Badge>
-            <Badge
-              variant="outline"
-              className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs"
-            >
-              {formatSalary(job.minSalary, job.maxSalary, job.currency)}
-            </Badge>
+            {[
+              titleize(job.jobType),
+              titleize(job.workplaceType),
+              titleize(job.experienceLevel),
+              formatSalary(job.minSalary, job.maxSalary, job.currency),
+            ].map((label) => (
+              <Badge
+                key={label}
+                variant="outline"
+                className="text-muted-foreground border-muted-foreground/30 font-medium rounded-lg px-3 py-1 text-xs"
+              >
+                {label}
+              </Badge>
+            ))}
           </div>
 
           <p className="text-sm text-foreground/80 leading-relaxed">
