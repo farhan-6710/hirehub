@@ -26,4 +26,4 @@ A job board. Candidates search jobs and apply with a cover letter and a resume. 
 
 ## Out of scope today
 
-Candidate dashboard, saved jobs, email notifications, password reset by email, company logo upload, draft jobs, pagination of jobs and applications. See [TASKS.md](./TASKS.md).
+Candidate dashboard, saved jobs, email notifications, password reset by email, company logo upload, draft jobs, pagination of jobs and applications. See [client TASKS](./client/TASKS.md) and [server TASKS](./server/TASKS.md).

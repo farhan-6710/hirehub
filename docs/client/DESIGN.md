@@ -1,6 +1,6 @@
 # Design
 
-Product behaviour is in [PRD.md](./PRD.md), system layout in [ARCHITECTURE.md](./ARCHITECTURE.md).
+Product behaviour is in [PRD.md](../PRD.md), system layout in [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Product / UX (in the product today)
 
