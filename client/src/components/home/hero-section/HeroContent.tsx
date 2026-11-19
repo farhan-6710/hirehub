@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/authContext";
 import { useEmployerAccess } from "@/providers/RoleAccessContext";
+import { brand } from "@/constants/brand";
 
 const HeroContent = () => {
   const router = useRouter();
@@ -37,7 +38,7 @@ const HeroContent = () => {
           </span>
           A Job That <br /> Fits Your{" "}
           <span className="bg-linear-to-r from-primary to-chart-2 bg-clip-text text-transparent">
-            Intrest
+            Interest
           </span>{" "}
           And{" "}
           <span className="bg-linear-to-r from-primary to-chart-2 bg-clip-text text-transparent">
@@ -51,10 +52,7 @@ const HeroContent = () => {
           transition={{ duration: 0.55, delay: 0.2, ease: "easeOut" }}
           className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg max-w-2xl"
         >
-          Explore opportunities that match your skills or post jobs to connect
-          with top talent. A unified platform built for both candidates and
-          recruiters. Making job searching and hiring simple, fast, and
-          effective.
+          {brand.descriptions.long}
         </motion.p>
 
         <motion.div
@@ -83,7 +81,9 @@ const HeroContent = () => {
               variant="glow"
               className="rounded-full px-8 py-4 text-lg font-semibold sm:px-10 sm:text-3xl"
             >
-              <Link href="/jobs">Find Jobs</Link>
+              <Link href={brand.portals.candidate.path}>
+                {brand.portals.candidate.label}
+              </Link>
             </Button>
           </motion.div>
           <motion.div
@@ -100,7 +100,7 @@ const HeroContent = () => {
               onClick={handlePostJobClick}
               className="rounded-full border border-primary! bg-glow-green-bg! hover:border-border! hover:bg-card! px-8 py-4 text-lg font-semibold text-foreground sm:px-10 sm:text-3xl duration-200"
             >
-              Post a Job
+              {brand.portals.employer.label}
             </Button>
           </motion.div>
         </motion.div>

@@ -25,11 +25,11 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/jobs', jobRoutes);
 app.use('/api/v1/employer', employerRoutes);
 
-// Global error handler (should be after routes)
-app.use(errorHandler);
-
 app.get('/api/v1/health', (req, res) => {
   res.json({ status: 'ok', message: 'server is running all fine' });
 });
+
+// Global error handler (should be after routes)
+app.use(errorHandler);
 
 export default app;

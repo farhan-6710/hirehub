@@ -13,9 +13,9 @@
 
 Tokens live in `client/src/app/globals.css` (`:root` / `.dark`) and are mapped into Tailwind via `@theme inline`. Primary is `#e53544`. Also: background, foreground, card, popover, secondary, muted, accent, destructive, border, input, ring, sidebar, chart, glow blobs, `--radius` (`0.625rem`).
 
-Fonts: Eczar is `html` / body (`font-eczar`). Geist, Geist Mono, and Merriweather are loaded on the root layout.
+Fonts: Eczar is `html` / body (`font-eczar`). Merriweather is loaded on the root layout for `font-serif`. Both come from `next/font/google`.
 
-Primitives: shadcn/ui (`components.json` style `radix-nova`, Hugeicons) under `client/src/components/ui/` — button (including `glow`), input, textarea, select, card, badge, dialog, sheet, tabs, sidebar, sonner, etc. Compose with `cn()` (`clsx` + `tailwind-merge`).
+Primitives: shadcn/ui (`components.json` style `radix-nova`, Hugeicons) under `client/src/components/ui/` — button (including `glow`), input, textarea, select, card, badge, dialog, sheet, tabs, sidebar, sonner, etc. Compose classes with `cn()` from `@/lib/utils` (re-exported from the `cn` package).
 
 ### Component hierarchy
 
@@ -24,7 +24,9 @@ Primitives: shadcn/ui (`components.json` style `radix-nova`, Hugeicons) under `c
 3. Feature folders: `home/`, `jobs/`, `employer/`, `auth/`, `ai-assistant/`, `modals/`, `skeletons/`.
 4. `components/ui/` primitives only.
 
-**Hard rule:** every UI component file ≤ 120 lines. If larger, split by responsibility (subcomponents, hooks, constants, types). Extract rather than grow the same file.
+Component size and layer rules: see [CLAUDE.md](CLAUDE.md).
+
+Brand copy (name, wordmark, descriptions, portal and tab labels) comes from `shared/brand/brandManifest.json` via `@/constants/brand`. The logo text is `components/shared/BrandWordmark`.
 
 ## Screen composition
 

@@ -5,11 +5,19 @@ import {
   Settings01Icon,
   UserCircle02Icon,
 } from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
 
-export const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: DashboardSquareSettingIcon },
-  { id: "my-jobs", label: "My Jobs", icon: Briefcase01Icon },
-  { id: "post-job", label: "Post Job", icon: PlusSignCircleIcon },
-  { id: "profile", label: "Profile", icon: UserCircle02Icon },
-  { id: "settings", label: "Settings", icon: Settings01Icon },
-];
+import { brand } from "@/constants/brand";
+
+const TAB_ICONS: Record<string, IconSvgElement> = {
+  dashboard: DashboardSquareSettingIcon,
+  "my-jobs": Briefcase01Icon,
+  "post-job": PlusSignCircleIcon,
+  profile: UserCircle02Icon,
+  settings: Settings01Icon,
+};
+
+export const navItems = brand.portals.employer.tabs.map((tab) => ({
+  ...tab,
+  icon: TAB_ICONS[tab.id],
+}));

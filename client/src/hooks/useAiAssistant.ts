@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setMessages, selectChatMessages } from "@/redux/slices/chatSlice";
 import { AppDispatch } from "@/redux/store";
+import { brand } from "@/constants/brand";
 
 interface Message {
   id: string;
@@ -39,7 +40,7 @@ export const useAiAssistant = ({
       const greeting: Message = {
         id: "greeting-" + Date.now(),
         content:
-          "Hi! 👋 I'm your HireHub assistant. I'm here to help you discover great roles, answer your hiring questions, and make your job search experience smooth. What can I help you with today?",
+          `Hi! 👋 I'm your ${brand.name} assistant. I'm here to help you discover great roles, answer your hiring questions, and make your job search experience smooth. What can I help you with today?`,
         role: "assistant",
         timestamp: new Date(),
       };
@@ -134,7 +135,7 @@ export const useAiAssistant = ({
               Authorization: `Bearer ${apiKey.trim()}`,
               "Content-Type": "application/json",
               "HTTP-Referer": window.location.origin,
-              "X-Title": "HireHub AI Assistant",
+              "X-Title": brand.assistant.fullName,
             },
             body: JSON.stringify({
               model: process.env.NEXT_PUBLIC_OPENROUTER_MODEL || "nvidia/nemotron-3-super-120b-a12b:free",
@@ -143,7 +144,7 @@ export const useAiAssistant = ({
                   ? [
                       {
                         role: "system",
-                        content: `You are a helpful hiring assistant for HireHub. Here are the available jobs and hiring details you can help users with:\n\n${JSON.stringify(
+                        content: `You are a helpful hiring assistant for ${brand.name}. Here are the available jobs and hiring details you can help users with:\n\n${JSON.stringify(
                           context,
                           null,
                           2,

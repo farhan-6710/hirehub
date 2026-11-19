@@ -63,7 +63,7 @@ Skills go through `skills` + `job_skills`. `requirements` and `responsibilities`
 
 Requires Node. Both packages have `bun.lock`; server also has `package-lock.json`. Scripts below use bun.
 
-Server `PORT` in code defaults to `5000`; client API default is `http://localhost:5001/api/v1`. Set env so they match.
+Server `PORT` defaults to `5001`, matching the client API default `http://localhost:5001/api/v1`.
 
 ### Server
 

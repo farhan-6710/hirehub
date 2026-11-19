@@ -16,6 +16,7 @@ import {
   Sun01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { BrandWordmark } from "@/components/shared/BrandWordmark";
 
 type NavItem = {
   label: string;
@@ -65,10 +66,7 @@ export default function MobileNavigation({
           }}
           className="flex justify-center py-4 text-5xl font-black leading-none tracking-tight"
         >
-          <span className="bg-linear-to-r from-primary to-chart-2 bg-clip-text text-transparent">
-            HIRE
-          </span>
-          <span className="text-foreground">HUB</span>
+          <BrandWordmark />
         </a>
 
         <nav className="flex flex-col gap-3 text-base font-medium text-foreground">

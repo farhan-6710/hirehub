@@ -1,24 +1,21 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { BotIcon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { Menu01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "../../ui/button";
 import { ModeToggle } from "@/components/shared/ModeToggle";
-import AiAssistant from "@/components/ai-assistant/AiAssistant";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import AuthAccountAction from "@/components/auth/AuthAccountAction";
 import MobileNavigation from "./MobileNavigation";
 import { AnimatedHeaderWrapper } from "./AnimatedHeaderWrapper";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useAuthModal } from "@/providers/AuthModalContext";
-
-const NAV_ITEMS = [
-  { label: "Metrics", href: "#metrics" },
-  { label: "Reviews", href: "#reviews" },
-  { label: "FAQs", href: "#faqs" },
-  { label: "Contact", href: "#contact" },
-];
+import { brand } from "@/constants/brand";
+import { scrollToAnchor } from "@/utils/scrollToAnchor";
+import { HOME_NAV_ITEMS } from "@/constants/homeNavigation";
+import { AiAssistantSheet } from "./AiAssistantSheet";
+import { BrandWordmark } from "@/components/shared/BrandWordmark";
 
 export function Header() {
   const { openLoginModal, openSignupModal } = useAuthModal();
@@ -27,71 +24,35 @@ export function Header() {
   const actionButtonClass =
     "rounded-lg border border-border bg-card text-foreground hover:bg-muted/80 transition-colors";
 
-  const handleAnchorClick = useCallback(
-    (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-      event.preventDefault();
-
-      const target = document.querySelector(href);
-      if (!(target instanceof HTMLElement)) {
-        if (href === "#home") {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          window.history.replaceState(null, "", href);
-        }
-        return;
-      }
-
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-      window.history.replaceState(null, "", href);
-    },
-    [],
-  );
-
-  const handleMobileNavigate = useCallback(
-    (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-      handleAnchorClick(event, href);
-      setIsMobileNavOpen(false);
-    },
-    [handleAnchorClick],
-  );
-
-  const handleOpenAiAssistantFromMobile = useCallback(() => {
+  const closeMobileNavThen = (action: () => void) => () => {
     setIsMobileNavOpen(false);
-    setIsAiAssistantOpen(true);
-  }, []);
+    action();
+  };
 
-  const handleOpenLoginFromMobile = useCallback(() => {
+  const handleMobileNavigate = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    scrollToAnchor(event, href);
     setIsMobileNavOpen(false);
-    openLoginModal();
-  }, [openLoginModal]);
-
-  const handleOpenSignupFromMobile = useCallback(() => {
-    setIsMobileNavOpen(false);
-    openSignupModal();
-  }, [openSignupModal]);
+  };
 
   return (
     <AnimatedHeaderWrapper>
       <a
         href="#home"
-        onClick={(event) => {
-          handleAnchorClick(event, "#home");
-        }}
+        onClick={(event) => scrollToAnchor(event, "#home")}
         className="text-2xl font-black leading-none tracking-tight sm:text-3xl"
       >
-        <span className="bg-linear-to-r from-primary to-chart-2 bg-clip-text text-transparent">
-          HIRE
-        </span>
-        <span className="text-foreground">HUB</span>
+        <BrandWordmark />
       </a>
 
       <nav className="hidden items-center gap-8 text-base text-muted-foreground md:flex">
-        {NAV_ITEMS.map((item) => (
+        {HOME_NAV_ITEMS.map((item) => (
           <a
             key={item.label}
             href={item.href}
-            onClick={(event) => {
-              handleAnchorClick(event, item.href);
-            }}
+            onClick={(event) => scrollToAnchor(event, item.href)}
             className="transition-colors hover:text-foreground"
           >
             {item.label}
@@ -120,11 +81,11 @@ export function Header() {
           className="w-full max-w-sm p-0"
         >
           <MobileNavigation
-            items={NAV_ITEMS}
+            items={HOME_NAV_ITEMS}
             onNavigate={handleMobileNavigate}
-            onOpenAiAssistant={handleOpenAiAssistantFromMobile}
-            onOpenLogin={handleOpenLoginFromMobile}
-            onOpenSignup={handleOpenSignupFromMobile}
+            onOpenAiAssistant={closeMobileNavThen(() => setIsAiAssistantOpen(true))}
+            onOpenLogin={closeMobileNavThen(openLoginModal)}
+            onOpenSignup={closeMobileNavThen(openSignupModal)}
           />
         </SheetContent>
       </Sheet>
@@ -136,36 +97,20 @@ export function Header() {
           buttonClassName={actionButtonClass}
         />
         <ModeToggle />
-        <Sheet open={isAiAssistantOpen} onOpenChange={setIsAiAssistantOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="md" className={actionButtonClass}>
-              <HugeiconsIcon
-                icon={BotIcon}
-                strokeWidth={2}
-                className="size-4.5"
-              />
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            title="HireHub AI Assistant"
-            className="w-full sm:max-w-md h-full p-0 outline-none"
-          >
-            <AiAssistant
-              className="h-full border-0 rounded-none shadow-none"
-              title="Hirehub Assistant"
-              placeholder="Ask about products, orders, or anything..."
-              context={[]}
-            />
-          </SheetContent>
-        </Sheet>
+        <AiAssistantSheet
+          open={isAiAssistantOpen}
+          onOpenChange={setIsAiAssistantOpen}
+          triggerClassName={actionButtonClass}
+        />
         <Button
           asChild
           variant="glow"
           size="lg"
           className="text-lg rounded-xl px-6 ml-4"
         >
-          <Link href="/jobs">Find Jobs</Link>
+          <Link href={brand.portals.candidate.path}>
+            {brand.portals.candidate.label}
+          </Link>
         </Button>
       </div>
     </AnimatedHeaderWrapper>

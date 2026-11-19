@@ -1,4 +1,4 @@
-import { prisma, disconnectDB } from '../config/db';
+import { disconnectDB } from '../config/db';
 import { CORE_EMPLOYER } from './seedData';
 import { setUserRole, ensureUserWithPassword } from './helpers';
 

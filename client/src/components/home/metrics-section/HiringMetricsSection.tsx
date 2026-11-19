@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import BlurryBlobSectionWrapper from "@/components/shared/BlurryBlobSectionWrapper";
+import { brand } from "@/constants/brand";
 
 const METRICS = [
   {
     label: "Successful Placements",
     value: "12,400+",
-    description: "Candidates hired through Hirehub in the last 12 months.",
+    description: `Candidates hired through ${brand.name} in the last 12 months.`,
   },
   {
     label: "Average Recruiter Response",

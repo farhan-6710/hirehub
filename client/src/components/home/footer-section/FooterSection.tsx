@@ -1,4 +1,5 @@
 import BlurryBlobSectionWrapper from "@/components/shared/BlurryBlobSectionWrapper";
+import { brand } from "@/constants/brand";
 
 const FOOTER_LINKS = {
   product: ["Find Jobs", "For Recruiters", "Pricing", "Success Stories"],
@@ -36,11 +37,10 @@ export default function FooterSection() {
                 <path d="m17 13-5 3-5-3v6l5 3 5-3z" />
               </svg>
             </span>
-            Hirehub
+            {brand.name}
           </h3>
           <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-            Modern hiring workflows for ambitious teams and talented candidates.
-            Build your pipeline with confidence.
+            {brand.descriptions.short}
           </p>
         </div>
 
@@ -88,7 +88,10 @@ export default function FooterSection() {
       </div>
 
       <div className="mx-auto mt-8 w-full border-t border-border px-4 py-6 text-center text-sm text-muted-foreground sm:px-6 lg:px-10">
-        <p>Copyright 2026 Hirehub. All rights reserved.</p>
+        <p>
+          Copyright {new Date().getFullYear()} {brand.name}. All rights
+          reserved.
+        </p>
       </div>
     </BlurryBlobSectionWrapper>
   );

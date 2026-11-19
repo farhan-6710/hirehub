@@ -2,6 +2,7 @@
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import { BotIcon } from "@hugeicons/core-free-icons";
+import { brand } from "@/constants/brand";
 
 const AiAssistantWelcome = () => {
   return (
@@ -14,7 +15,7 @@ const AiAssistantWelcome = () => {
         />
       </div>
       <h3 className="text-lg font-semibold text-foreground mb-2">
-        Welcome to HireHub Assistant
+        Welcome to {brand.assistant.name}
       </h3>
       <p className="text-sm text-muted-foreground max-w-sm">
         I&apos;m here to help you discover relevant roles and opportunities. Ask

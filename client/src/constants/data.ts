@@ -1,3 +1,5 @@
+import { brand } from "@/constants/brand";
+
 export const DUMMY_CONTENT =
   "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Totam aperiam expedita culpa consectetur laudantium dignissimos, libero earum laborum molestias. Quia esse temporibus saepe omnis, perferendis magni dignissimos corporis eaque facere soluta nemo impedit possimus molestias quae alias quis a deleniti at porro eius, amet inventore?";
 
@@ -7,7 +9,7 @@ export const REVIEWS = [
     role: "Product Designer",
     rating: 5,
     quote:
-      "Hirehub helped me move from freelance work to a full-time role in less than three weeks. The job filters are actually useful.",
+      `${brand.name} helped me move from freelance work to a full-time role in less than three weeks. The job filters are actually useful.`,
   },
   {
     name: "Omar Khalid",
@@ -42,6 +44,6 @@ export const REVIEWS = [
     role: "UX Researcher",
     rating: 4,
     quote:
-      "Hirehub made it easy to compare roles, manage applications, and stay consistent with recruiter follow-ups.",
+      `${brand.name} made it easy to compare roles, manage applications, and stay consistent with recruiter follow-ups.`,
   },
 ];

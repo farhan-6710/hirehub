@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import AuthAccountAction from "@/components/auth/AuthAccountAction";
 import { useAuthModal } from "@/providers/AuthModalContext";
+import { brand } from "@/constants/brand";
+import { BrandWordmark } from "@/components/shared/BrandWordmark";
 
 type JobsPageHeaderProps = {
   onHeightChange?: (height: number) => void;
@@ -56,12 +58,9 @@ export function JobsPageHeader({ onHeightChange }: JobsPageHeaderProps) {
           <Link
             href="/"
             className="text-2xl font-black leading-none tracking-tight sm:text-3xl"
-            aria-label="HireHub Home"
+            aria-label={`${brand.name} Home`}
           >
-            <span className="bg-linear-to-r from-primary to-chart-2 bg-clip-text text-transparent">
-              HIRE
-            </span>
-            <span className="text-foreground">HUB</span>
+            <BrandWordmark />
           </Link>
 
           <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { REVIEWS } from "@/constants/data";
 import BlurryBlobSectionWrapper from "@/components/shared/BlurryBlobSectionWrapper";
+import { brand } from "@/constants/brand";
 
 export default function ReviewsSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -96,7 +97,7 @@ export default function ReviewsSection() {
           Real Feedback From Hiring Journeys
         </h2>
         <p className="text-muted-foreground">
-          A few snapshots from professionals and recruiters using Hirehub every
+          A few snapshots from professionals and recruiters using {brand.name} every
           day.
         </p>
       </div>

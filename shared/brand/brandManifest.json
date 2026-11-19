@@ -1,0 +1,51 @@
+{
+  "name": "HireHub",
+  "wordmark": {
+    "accent": "HIRE",
+    "rest": "HUB"
+  },
+  "descriptions": {
+    "short": "Modern hiring workflows for ambitious teams and talented candidates. Build your pipeline with confidence.",
+    "long": "Explore opportunities that match your skills or post jobs to connect with top talent. A unified platform built for both candidates and recruiters. Making job searching and hiring simple, fast, and effective."
+  },
+  "seo": {
+    "title": "HireHub",
+    "description": "Find or post a job that fits your interest and skill. One platform for candidates and recruiters."
+  },
+  "assistant": {
+    "name": "HireHub Assistant",
+    "fullName": "HireHub AI Assistant"
+  },
+  "portals": {
+    "candidate": {
+      "label": "Find Jobs",
+      "path": "/jobs"
+    },
+    "employer": {
+      "label": "Post a Job",
+      "path": "/employer",
+      "tabs": [
+        {
+          "id": "dashboard",
+          "label": "Dashboard"
+        },
+        {
+          "id": "my-jobs",
+          "label": "My Jobs"
+        },
+        {
+          "id": "post-job",
+          "label": "Post Job"
+        },
+        {
+          "id": "profile",
+          "label": "Profile"
+        },
+        {
+          "id": "settings",
+          "label": "Settings"
+        }
+      ]
+    }
+  }
+}

@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-/* Point this to your config file path */
-@config "../../tailwind.config.ts";
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -16,7 +13,6 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
 
-  /* Zomato Red */
   --primary: #e53544;
   --primary-foreground: #ffffff;
 
@@ -73,7 +69,6 @@
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
 
-  /* Zomato Red */
   --primary: #e53544;
   --primary-foreground: #ffffff;
 
@@ -120,8 +115,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-eczar: var(--font-eczar);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -163,6 +156,14 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-scroll: scroll var(--animation-duration, 40s)
+    var(--animation-direction, forwards) linear infinite;
+
+  @keyframes scroll {
+    to {
+      transform: translate(calc(-50% - 0.5rem));
+    }
+  }
 }
 
 @layer base {

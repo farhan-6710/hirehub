@@ -53,8 +53,6 @@ export default function FormSection() {
             right plan and timeline.
           </p>
           <div className="space-y-1 text-sm text-muted-foreground">
-            <p>Email: hello@hirehub.app</p>
-            <p>Support: support@hirehub.app</p>
             <p>Hours: Mon - Fri, 9:00 AM to 6:00 PM</p>
           </div>
         </div>
