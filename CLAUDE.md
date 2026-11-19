@@ -1,24 +1,28 @@
 # HireHub
 
-Job board. Candidates browse and apply to jobs. Employers post jobs and review applications. See [README.md](README.md) for routes, env variable names, and deploy notes.
+Job board. Candidates browse and apply to jobs. Employers post jobs and review applications. Two packages, no root workspace: `client/` (Next.js) and `server/` (Express + Prisma + Neon Postgres). Brand copy lives in `shared/brand/`.
 
-Two packages, no root workspace. Run every command inside the package folder.
+This is the only `CLAUDE.md`. It loads the shared docs and each package's docs below. When docs conflict, [docs/RULES.md](./docs/RULES.md) wins.
 
-| Folder | What | Stack |
-| --- | --- | --- |
-| `client/` | Web UI | Next.js App Router, React, Tailwind v4, shadcn/ui |
-| `server/` | REST API under `/api/v1` | Express, Prisma, PostgreSQL |
-| `shared/brand/` | Brand manifest | JSON, read by the client |
+@docs/RULES.md
+@docs/PRD.md
+@docs/DATABASE.md
+@docs/MEMORY.md
 
-## Brand copy
+Client:
 
-Brand copy comes only from [shared/brand/brandManifest.json](shared/brand/brandManifest.json): name, wordmark, descriptions, SEO title and description, assistant name, portal labels and employer tab labels. Longer copy (FAQ, reviews, metrics) interpolates `brand.name` instead of spelling it.
+@docs/client/RULES.md
+@docs/client/ARCHITECTURE.md
+@docs/client/DESIGN.md
+@docs/client/TASKS.md
+@docs/client/MEMORY.md
 
-- Client code reads it through `@/constants/brand` (`brand.name`, `brand.seo.title`, ...). Do not hard-code these values.
-- The header wordmark is `@/components/shared/BrandWordmark`.
-- Edit the JSON, then rebuild. Nothing is generated from it.
-- `client/next.config.ts` sets `turbopack.root` to the repo root so the client can import `../shared`. Keep it. On Vercel (Root Directory `client`), "Include files outside the root directory in the Build Step" must stay enabled.
-- Theme tokens (colours, radius, fonts, the `animate-scroll` animation) live only in `client/src/app/globals.css` (`:root`, `.dark`, `@theme inline`). There is no `tailwind.config.ts`; Tailwind v4 reads the CSS.
+Server:
+
+@docs/server/RULES.md
+@docs/server/ARCHITECTURE.md
+@docs/server/TASKS.md
+@docs/server/MEMORY.md
 
 ## Key directories
 
@@ -73,7 +77,11 @@ There is no unit-test runner. `server`: `bun run test:smoke` walks the whole API
 - Never commit `.env` or `.env.local`. Add env keys only when code needs them; document names only.
 - Google OAuth: `GOOGLE_REDIRECT_URL` must match the redirect URL set in the Google console.
 
-## Other docs
+## Docs
 
-- [README.md](README.md): setup, API routes, env names, deploy
-- [docs/](docs/): PRD, ARCHITECTURE, DATABASE, DESIGN, RULES, MEMORY, TASKS
+| Doc | Covers |
+| --- | --- |
+| [docs/](./docs/) | PRD, DATABASE, RULES, MEMORY (shared) |
+| [docs/client/](./docs/client/) | Architecture, design, rules, tasks, memory |
+| [docs/server/](./docs/server/) | Architecture, rules, tasks, memory |
+| [README.md](./README.md) | Setup, routes, deploy |

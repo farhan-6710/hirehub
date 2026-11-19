@@ -133,4 +133,4 @@ Schema changes: run `bun run migrate:deploy` in `server/` against the target dat
 
 ## Docs
 
-[CLAUDE.md](CLAUDE.md) (working rules), [docs/PRD.md](docs/PRD.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DATABASE.md](docs/DATABASE.md), [docs/DESIGN.md](docs/DESIGN.md), [docs/RULES.md](docs/RULES.md), [docs/MEMORY.md](docs/MEMORY.md), [docs/TASKS.md](docs/TASKS.md).
+[CLAUDE.md](CLAUDE.md) (working rules), [docs/](docs/) (shared), [docs/client/](docs/client/), [docs/server/](docs/server/).
