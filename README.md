@@ -17,7 +17,7 @@ The UI calls Express over Axios (`withCredentials: true`). JWT is stored in an H
 
 **Client:** Next.js 16, React 19, TypeScript, Tailwind CSS v4, shadcn/ui, Hugeicons, next-themes, Redux Toolkit + redux-persist (AI chat/feedback only), Axios, Framer Motion, Embla, Sonner.
 
-**Server:** Express 5, TypeScript, Prisma 7, Neon (PostgreSQL) via `DATABASE_URL` and `@prisma/adapter-pg`, JWT (`jsonwebtoken`, `cookie-parser`), bcryptjs, Google OAuth (`google-auth-library`), Multer (`uploads/resumes`, served at `/uploads`).
+**Server:** Express 5, TypeScript, Prisma 7, Neon (PostgreSQL) via `DATABASE_URL` and `@prisma/adapter-pg`, JWT (`jsonwebtoken`, `cookie-parser`), bcryptjs, Google OAuth (`google-auth-library`), Multer (memory storage; resumes are saved in Postgres).
 
 **Assistant:** OpenRouter chat completions from the client (`useAiAssistant`).
 
@@ -33,10 +33,10 @@ client/
   src/hooks/ constants/ types/
 server/
   src/server.ts         # Process entry
-  src/app.ts            # CORS, cookies, /api/v1, /uploads, /health
+  src/app.ts            # CORS, cookies, /api/v1, /health
   src/routes/           # /auth /jobs /employer
   src/controllers/
-  src/middlewares/      # JWT protect, resume upload, error handler
+  src/middlewares/      # JWT protect, role check, resume upload, error handler
   src/config/db.ts      # Prisma client
   prisma/               # schema, migrations
   src/seeds/
@@ -52,9 +52,9 @@ AI sheet → OpenRouter
 
 **Routes (server, `/api/v1`):**
 
-- Auth: `POST /auth/signup` `POST /auth/login` `POST /auth/logout` `GET /auth/me` `GET /auth/google` `GET /auth/google/callback`
+- Auth: `POST /auth/signup` `POST /auth/login` `POST /auth/logout` `GET /auth/me` `PATCH /auth/password` `DELETE /auth/me` `GET /auth/google` `GET /auth/google/callback`
 - Jobs: `GET /jobs` `GET /jobs/:jobId` `POST /jobs` (employer) `POST /jobs/:jobId/apply` (candidate; `resumeFile`, `coverLetter`)
-- Employer (auth): `GET /employer/dashboard` `GET /employer/profile` `GET /employer/my-jobs` `DELETE /employer/jobs/:jobId` `GET /employer/jobs/:jobId/applications` `PATCH /employer/applications/:applicationId/status`
+- Employer (auth, employer role): `GET /employer/dashboard` `GET` `PUT /employer/profile` `GET /employer/my-jobs` `DELETE /employer/jobs/:jobId` `GET /employer/jobs/:jobId/applications` `GET /employer/applications/:applicationId/resume` `PATCH /employer/applications/:applicationId/status`
 - Health: `GET /health`
 
 Skills go through `skills` + `job_skills`. `requirements` and `responsibilities` are `String[]` on `jobs`. Application status: `pending` | `reviewed` | `accepted` | `rejected`.
@@ -117,7 +117,7 @@ bun run dev
 
 **Client:** `dev`, `build`, `start`, `lint`.
 
-**Server:** `dev` (nodemon + ts-node), `build` (`prisma generate` + `tsc`), `start` (`node dist/server.js`), `lint`, `seed:all` (also `seed:user`, `seed:employer-profile`, `seed:jobs`, `seed:my-jobs`, `seed:applications`).
+**Server:** `dev` (nodemon + ts-node), `build` (`prisma generate` + `tsc`), `migrate:deploy` (`prisma migrate deploy`), `start` (`node dist/server.js`), `lint`, `seed:all` (also `seed:user`, `seed:employer-profile`, `seed:jobs`, `seed:my-jobs`, `seed:applications`).
 
 ## Deploy
 
@@ -128,3 +128,9 @@ Axios calls `process.env.NEXT_PUBLIC_SERVER_URL` (see `client/src/constants/api.
 | Client | Vercel | https://hirehub-brown.vercel.app/ | main — `itz.me.**********@gmail.com` |
 | API | Render | https://hirehub-backend-mebq.onrender.com | second — `f4****67@gmail.com` |
 | Database | Neon (PostgreSQL) | `DATABASE_URL` | — |
+
+Schema changes: run `bun run migrate:deploy` in `server/` against the target database before deploying code that needs them.
+
+## Docs
+
+[CLAUDE.md](CLAUDE.md) (working rules), [docs/PRD.md](docs/PRD.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DATABASE.md](docs/DATABASE.md), [docs/DESIGN.md](docs/DESIGN.md), [docs/RULES.md](docs/RULES.md), [docs/MEMORY.md](docs/MEMORY.md), [docs/TASKS.md](docs/TASKS.md).
