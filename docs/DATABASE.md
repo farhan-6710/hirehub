@@ -14,11 +14,11 @@ users 1─1 employer_profiles
 | --- | --- |
 | `users` | `role` is `candidate` or `employer`; `password` is a bcrypt hash; `picture` is set by Google sign-in |
 | `employer_profiles` | One per employer user; company name and headquarters are required to post jobs |
-| `jobs` | `requirements` and `responsibilities` are `String[]`; `company_name` and `location` are copied from the profile when posted; `status` is `open`, `closed`, `draft` or `applied` |
+| `jobs` | `workplace_type`, `job_type`, `experience_level` are enums; `requirements` and `responsibilities` are `String[]`; `company_name` and `location` are copied from the profile when posted; `status` is `open`, `closed`, `draft` or `applied` |
 | `skills`, `job_skills` | Skill names are stored lowercase and unique; the only place skills live |
 | `applications` | Unique per (`job_id`, `applicant_user_id`); status `pending`, `reviewed`, `accepted`, `rejected`; resume stored in `resume_file` (bytea), `resume_file_name`, `resume_mime_type` |
 
-Deleting a user cascades to their jobs, applications and profile. Deleting a job cascades to its applications.
+Deleting a user cascades to their jobs, applications and profile. Deleting a job cascades to its applications and job skills. Deleting an employer profile sets `jobs.employer_profile_id` to null.
 
 ## Rules
 

@@ -1,4 +1,4 @@
-# Memory — HireHub Server
+# Memory — HireHub (server)
 
 Short durable facts. Shared decisions: [docs/MEMORY.md](../MEMORY.md). Work left: [TASKS.md](./TASKS.md).
 

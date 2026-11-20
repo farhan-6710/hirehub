@@ -18,9 +18,9 @@ A job board. Candidates search jobs and apply with a cover letter and a resume. 
 
 **Applying.** The resume is checked in the browser (type, size) and again on the server (type, size, file signature). It is stored in Postgres with its name and MIME type. Employers read it through an authenticated endpoint; it is never public.
 
-**Employer workspace.** One page, `/employer?tab=`, with tabs: dashboard (counts, recent applications), my jobs (list, applications per job, delete), post job, profile, settings. Posting needs a company profile with a name and headquarters location; the job copies both. Application status is `pending`, `reviewed`, `accepted` or `rejected`. Opening a resume marks a pending application `reviewed`.
+**Employer workspace.** One page, `/employer?tab=`, with tabs: dashboard (counts, recent applications), my jobs (list, applications per job, delete), post job, profile, settings. Posting needs a company profile with a name and headquarters location; the job copies both. Application status is `pending`, `reviewed`, `accepted` or `rejected`. Opening a resume in the employer UI marks a pending application `reviewed` (the client sends the status update).
 
-**Account.** An employer can change the password and delete the account. Deleting removes the user, their jobs, those jobs' applications and the profile.
+**Account.** The employer Settings tab offers change password and delete account (the API routes are open to any signed-in user). Deleting removes the user, their jobs, those jobs' applications and the profile.
 
 **Assistant.** A chat sheet in the header calls OpenRouter from the browser (`useAiAssistant`). It needs `NEXT_PUBLIC_OPENROUTER_API_KEY`.
 

@@ -7,7 +7,8 @@ Short durable facts for both packages. Client: [MEMORY](./client/MEMORY.md) · S
 - Resumes are stored in Postgres (`bytea`), not on disk. Render's disk is not persistent, and the one real uploaded resume in the old data returned 404 from the live API.
 - The JWT is never returned in response bodies; the HttpOnly cookie is the only session carrier.
 - Applicant counts are computed from `applications`, not stored.
-- Brand copy lives in one JSON file; theme tokens stay in CSS by choice.
+- Brand copy lives in one JSON file at the repo root (`brandManifest.json`); theme tokens stay in CSS by choice.
+- `GET /api/v1/health` is the health route.
 
 ## Ops
 

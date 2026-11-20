@@ -1,17 +1,17 @@
-# Architecture — HireHub Server
+# Architecture — HireHub (server)
 
 Shared product and data: [PRD](../PRD.md) · [DATABASE](../DATABASE.md) · [RULES](../RULES.md). Client: [client ARCHITECTURE](../client/ARCHITECTURE.md).
 
 ## Stack
 
-Express 5, TypeScript, Prisma 7 with `@prisma/adapter-pg`, Neon Postgres, JWT in an HttpOnly cookie (`jsonwebtoken`, `cookie-parser`), bcryptjs, Google OAuth (`google-auth-library`), Multer (memory storage), express-rate-limit, bun.
+Express 5, TypeScript 5, Prisma 7 with `@prisma/adapter-pg`, Neon Postgres, JWT in an HttpOnly cookie (`jsonwebtoken` 9, `cookie-parser`), bcryptjs 3, Google OAuth (`google-auth-library` 10), Multer 2 (memory storage), express-rate-limit 8, cors, dotenv. Dev: nodemon + ts-node. Lint: ESLint 9 + typescript-eslint. Package manager: bun (`package-lock.json` is kept too). CommonJS output to `dist/`.
 
 ## Folders
 
 | Path | Purpose |
 | --- | --- |
 | `src/server.ts` | Process entry |
-| `src/app.ts` | CORS, cookies, `/api/v1` routes, `/health`, error handler last |
+| `src/app.ts` | CORS, cookies, `/api/v1` routes, `/api/v1/health`, error handler last |
 | `src/routes` → `src/controllers` | HTTP layer |
 | `src/middlewares` | `protect` (JWT), `requireRole`, `uploadResume`, `errorHandler` |
 | `src/utils` | Token and cookie helpers, resume file checks, validation rules, Google client |
@@ -20,6 +20,10 @@ Express 5, TypeScript, Prisma 7 with `@prisma/adapter-pg`, Neon Postgres, JWT in
 | `prisma/` | Schema and migrations |
 | `scripts/smoke.sh` | API smoke test for a disposable database |
 
+## Data flow
+
+Route → `protect` / `requireRole` → controller (validate input) → Prisma → Neon. Errors go to `errorHandler`.
+
 ## API (`/api/v1`)
 
 | Area | Routes |
@@ -27,7 +31,7 @@ Express 5, TypeScript, Prisma 7 with `@prisma/adapter-pg`, Neon Postgres, JWT in
 | Auth | `POST /auth/signup`, `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, `PATCH /auth/password`, `DELETE /auth/me`, `GET /auth/google`, `GET /auth/google/callback` |
 | Jobs | `GET /jobs`, `GET /jobs/:jobId`, `POST /jobs` (employer), `POST /jobs/:jobId/apply` (candidate, multipart `resumeFile` + `coverLetter`) |
 | Employer | `GET /employer/dashboard`, `GET /employer/my-jobs`, `DELETE /employer/jobs/:jobId`, `GET /employer/jobs/:jobId/applications`, `GET /employer/applications/:applicationId/resume`, `PATCH /employer/applications/:applicationId/status`, `GET` and `PUT /employer/profile` |
-| Health | `GET /health` |
+| Health | `GET /api/v1/health` |
 
 Every `/employer` route runs `protect` then `requireRole('employer')`. Errors are `{ error: string }`. Resume bytes never appear in JSON.
 

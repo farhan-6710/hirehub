@@ -11,7 +11,7 @@ import { SettingsTab } from "@/components/employer/settings/SettingsTab";
 import { useAuth } from "@/providers/authContext";
 import { useEmployerAccess } from "@/providers/RoleAccessContext";
 
-// Keys match the tab ids in shared/brand/brandManifest.json.
+// Keys match the tab ids in brandManifest.json.
 const TABS: Record<string, ComponentType> = {
   dashboard: DashboardTab,
   "my-jobs": MyJobsTab,

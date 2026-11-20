@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1200px;height:630px;overflow:hidden;background:#0a0b0b}
+body{position:relative;font-family:"Merriweather",serif;color:#e8e9ee}
+.bg{position:absolute;inset:0;background:
+  radial-gradient(620px 420px at 82% 46%,rgba(229,53,68,.20),transparent 70%),
+  linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/60px 60px,
+  linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/60px 60px,#0a0b0b}
+.brand{position:absolute;left:72px;top:56px;display:flex;align-items:center;gap:14px;font-family:"Eczar",serif;font-weight:700;font-size:40px;letter-spacing:.5px}
+.brand img{height:46px}
+.brand .a{color:#e53544}.brand .b{color:#fff}
+h1{position:absolute;left:72px;top:210px;width:660px;font-family:"Eczar",serif;font-weight:700;font-size:72px;line-height:1.06;color:#fff}
+h1 em{font-style:normal;color:#e53544}
+p.sub{position:absolute;left:72px;top:372px;width:560px;font-size:22px;line-height:1.55;color:#a7a9b2}
+.cards{position:absolute;left:760px;top:84px;width:400px}
+.card{position:absolute;width:340px;padding:22px 24px;border-radius:18px;background:#14161a;border:1px solid rgba(255,255,255,.10);box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.card .t{font-family:"Eczar",serif;font-weight:700;font-size:28px;color:#fff;line-height:1.1}
+.card .m{margin-top:6px;font-size:14px;color:#8d909a}
+.card .row{margin-top:16px;display:flex;gap:8px}
+.chip{font-size:12px;padding:5px 12px;border-radius:99px;background:#2a1519;color:#f17a84;font-weight:700}
+.chip.g{background:#1d2026;color:#b8bac3}
+.c1{left:0;top:0}.c2{left:50px;top:152px;border-color:rgba(229,53,68,.55)}.c3{left:10px;top:304px}
+.pill{position:absolute;right:0;top:0;padding:10px 22px;border-radius:99px;background:#e53544;color:#fff;font-family:"Eczar",serif;font-weight:700;font-size:22px}
+.strip{position:absolute;left:0;right:0;bottom:0;height:64px;background:#e53544;display:flex;align-items:center;justify-content:space-between;padding:0 72px;color:#fff;font-family:"Eczar",serif;font-weight:700;font-size:26px;letter-spacing:1.5px}
+</style></head><body>
+<div class="bg"></div>
+<div class="brand"><img src="../../public/logo-white.png" alt=""><span><span class="a">HIRE</span><span class="b">HUB</span></span></div>
+<h1><em>Find or post</em> a job that fits your skill</h1>
+<p class="sub">One platform for candidates and recruiters. Apply in minutes, hire with confidence.</p>
+<div class="cards">
+  <div class="card c1"><div class="t">Frontend Engineer</div><div class="m">Remote &middot; Full time</div><div class="row"><span class="chip">React</span><span class="chip g">TypeScript</span></div></div>
+  <div class="card c2"><div class="t">Product Designer</div><div class="m">Hybrid &middot; Full time</div><div class="row"><span class="chip">Figma</span><span class="chip g">Research</span></div></div>
+  <div class="card c3"><div class="t">Data Analyst</div><div class="m">On-site &middot; Contract</div><div class="row"><span class="chip">SQL</span><span class="chip g">Python</span></div></div>
+</div>
+<div class="strip"><span>HIREHUB-BROWN.VERCEL.APP</span><span>FIND JOBS &middot; POST A JOB</span></div>
+</body></html>

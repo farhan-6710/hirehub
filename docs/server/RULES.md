@@ -1,4 +1,4 @@
-# Rules — HireHub Server
+# Rules — HireHub (server)
 
 Shared rules: [docs/RULES.md](../RULES.md). Product: [PRD.md](../PRD.md) · Data: [DATABASE.md](../DATABASE.md) · Structure: [ARCHITECTURE.md](./ARCHITECTURE.md).
 

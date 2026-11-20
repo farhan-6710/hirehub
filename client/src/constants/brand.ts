@@ -1,4 +1,4 @@
-import brandManifest from "../../../shared/brand/brandManifest.json";
+import brandManifest from "../../../brandManifest.json";
 
-// Single source of truth for brand copy: shared/brand/brandManifest.json
+// Single source of truth for brand copy: brandManifest.json
 export const brand = brandManifest;

@@ -1,4 +1,4 @@
-# Rules — HireHub Client
+# Rules — HireHub (client)
 
 Shared rules: [docs/RULES.md](../RULES.md). Product: [PRD.md](../PRD.md) · Structure: [ARCHITECTURE.md](./ARCHITECTURE.md) · Look: [DESIGN.md](./DESIGN.md).
 

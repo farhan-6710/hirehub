@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
 import { Eczar, Merriweather } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import AppProviders from "@/providers/AppProviders";
-import { brand } from "@/constants/brand";
+import { rootMetadata, rootViewport, siteJsonLd } from "@/lib/seo";
 
 const eczar = Eczar({
   weight: ["400", "700"],
@@ -16,10 +15,8 @@ const merriweather = Merriweather({
   variable: "--font-serif",
 });
 
-export const metadata: Metadata = {
-  title: brand.seo.title,
-  description: brand.seo.description,
-};
+export const metadata = rootMetadata;
+export const viewport = rootViewport;
 
 export default function RootLayout({
   children,
@@ -33,6 +30,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

@@ -1,6 +1,6 @@
 # HireHub
 
-Job board. Candidates browse and apply to jobs. Employers post jobs and review applications. Two packages, no root workspace: `client/` (Next.js) and `server/` (Express + Prisma + Neon Postgres). Brand copy lives in `shared/brand/`.
+Job board. Candidates browse and apply to jobs. Employers post jobs and review applications. Two packages, no root workspace: `client/` (Next.js) and `server/` (Express + Prisma + Neon Postgres). Brand copy lives in `brandManifest.json` at the repo root.
 
 This is the only `CLAUDE.md`. It loads the shared docs and each package's docs below. When docs conflict, [docs/RULES.md](./docs/RULES.md) wins.
 
@@ -26,12 +26,19 @@ Server:
 
 ## Key directories
 
-- `client/src/app` routes: `/`, `/jobs`, `/jobs/[jobId]`, `/employer`
-- `client/src/components/<domain>` feature UI; `components/ui` shadcn primitives only
-- `client/src/services/*Api.ts` Axios calls; endpoints in `client/src/constants/api.ts`; data logic in `client/src/hooks`
-- `client/src/providers` auth, auth modal, role access, theme; `client/src/redux` chat and feedback only
-- `server/src/routes` then `server/src/controllers`; `server/src/middlewares` (JWT, resume upload, errors)
-- `server/prisma` schema and migrations; `server/src/seeds` seed scripts
+| Path | Holds |
+| --- | --- |
+| `brandManifest.json` | Brand copy (repo root) |
+| `client/src/app` | Routes `/`, `/jobs`, `/jobs/[jobId]`, `/employer`; theme tokens in `globals.css` |
+| `client/src/components/<domain>` | Feature UI; `components/ui` shadcn primitives only |
+| `client/src/services`, `constants/api.ts`, `hooks` | `*Api.ts` Axios calls, endpoints, data logic |
+| `client/src/providers`, `redux` | Auth, auth modal, role access, theme; Redux for chat and feedback only |
+| `server/src/routes` then `controllers` | HTTP layer; `middlewares` hold JWT, role check, resume upload, errors |
+| `server/prisma`, `server/src/seeds` | Schema and migrations; seed scripts |
+
+## Brand
+
+Brand copy (name, wordmark, descriptions, SEO title and description, assistant name, portal and employer tab labels) comes only from `brandManifest.json`. The client reads it through `@/constants/brand` (`brand`); the server has no brand copy. Never type the product name into a component; use `brand.name` or `BrandWordmark`. Nothing is generated from the manifest, so edit the JSON and rebuild. Theme tokens stay in `client/src/app/globals.css`.
 
 ## Conventions
 
@@ -66,6 +73,7 @@ There is no unit-test runner. `server`: `bun run test:smoke` walks the whole API
 - `client`: `bun run lint` and `bun run build` pass.
 - `server`: `bun run lint` and `bun run build` pass.
 - No hard-coded brand copy: `git grep -n -i "hirehub" client/src server/src` returns nothing.
+- Check changed screens in light and dark. Update the package `TASKS.md` and `MEMORY.md` when work lands.
 
 ## Hard rules
 

@@ -9,6 +9,9 @@ import FormSection from "@/components/home/form-section/FormSection";
 import FooterSection from "@/components/home/footer-section/FooterSection";
 import BackgroundBeamsWithCollision from "@/components/shared/background-beams-with-collision";
 import { FAQS_DATA } from "@/constants/FAQSData";
+import { homeMetadata } from "@/lib/seo";
+
+export const metadata = homeMetadata;
 
 export default function Home() {
   return (

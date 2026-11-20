@@ -9,8 +9,27 @@
     "long": "Explore opportunities that match your skills or post jobs to connect with top talent. A unified platform built for both candidates and recruiters. Making job searching and hiring simple, fast, and effective."
   },
   "seo": {
-    "title": "HireHub",
-    "description": "Find or post a job that fits your interest and skill. One platform for candidates and recruiters."
+    "title": "HireHub | Find or Post a Job That Fits Your Skill",
+    "titleTemplate": "%s | HireHub",
+    "description": "Find or post a job that fits your interest and skill. One platform for candidates and recruiters.",
+    "keywords": [
+      "jobs",
+      "job search",
+      "hiring platform",
+      "post a job",
+      "recruiters",
+      "candidates",
+      "careers",
+      "apply online"
+    ],
+    "locale": "en_US",
+    "themeColor": "#e53544",
+    "image": {
+      "url": "/brand/share-card.jpg",
+      "width": 1200,
+      "height": 630,
+      "alt": "HireHub: find or post a job that fits your skill"
+    }
   },
   "assistant": {
     "name": "HireHub Assistant",
@@ -47,5 +66,13 @@
         }
       ]
     }
+  },
+  "siteUrl": "https://hirehub-brown.vercel.app",
+  "logo": {
+    "favicon": {
+      "light": "/brand/favicon-light.png",
+      "dark": "/brand/favicon-dark.png"
+    },
+    "appleTouch": "/brand/apple-icon.png"
   }
 }

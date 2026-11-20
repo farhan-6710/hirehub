@@ -15,9 +15,9 @@ The UI calls Express over Axios (`withCredentials: true`). JWT is stored in an H
 
 ## Stack
 
-**Client:** Next.js 16, React 19, TypeScript, Tailwind CSS v4, shadcn/ui, Hugeicons, next-themes, Redux Toolkit + redux-persist (AI chat/feedback only), Axios, Framer Motion, Embla, Sonner.
+**Client:** Next.js 16, React 19, TypeScript 5, Tailwind CSS 4, shadcn/ui, Hugeicons, next-themes, Redux Toolkit 2 + redux-persist (AI chat/feedback only), React Hook Form + Zod, Axios, Framer Motion, Embla, Sonner. Fonts: Eczar, Merriweather.
 
-**Server:** Express 5, TypeScript, Prisma 7, Neon (PostgreSQL) via `DATABASE_URL` and `@prisma/adapter-pg`, JWT (`jsonwebtoken`, `cookie-parser`), bcryptjs, Google OAuth (`google-auth-library`), Multer (memory storage; resumes are saved in Postgres).
+**Server:** Express 5, TypeScript, Prisma 7, Neon (PostgreSQL) via `DATABASE_URL` and `@prisma/adapter-pg`, JWT (`jsonwebtoken`, `cookie-parser`), bcryptjs, Google OAuth (`google-auth-library`), Multer (memory storage; resumes are saved in Postgres), express-rate-limit.
 
 **Assistant:** OpenRouter chat completions from the client (`useAiAssistant`).
 
@@ -26,20 +26,24 @@ The UI calls Express over Axios (`withCredentials: true`). JWT is stored in an H
 ```
 client/
   src/app/              # Routes: /, /jobs, /jobs/[jobId], /employer
-  src/components/       # ui/, shared/, home/, jobs/, employer/, auth/, ai-assistant/
+  src/components/       # ui/, shared/, home/, jobs/, employer/, auth/, ai-assistant/, modals/, skeletons/
   src/providers/        # Redux, theme, auth, auth modal, role access
   src/services/         # Axios API modules
   src/redux/            # chat, feedback
-  src/hooks/ constants/ types/
+  src/hooks/ constants/ types/ utils/ animations/
 server/
   src/server.ts         # Process entry
-  src/app.ts            # CORS, cookies, /api/v1, /health
+  src/app.ts            # CORS, cookies, /api/v1, /api/v1/health
   src/routes/           # /auth /jobs /employer
   src/controllers/
   src/middlewares/      # JWT protect, role check, resume upload, error handler
+  src/utils/            # token, resume checks, validation, Google client
   src/config/db.ts      # Prisma client
   prisma/               # schema, migrations
   src/seeds/
+  scripts/smoke.sh      # API smoke test
+brandManifest.json      # brand copy (repo root)
+docs/                   # PRD, DATABASE, RULES, MEMORY + client/ and server/
 ```
 
 ```
@@ -55,7 +59,7 @@ AI sheet → OpenRouter
 - Auth: `POST /auth/signup` `POST /auth/login` `POST /auth/logout` `GET /auth/me` `PATCH /auth/password` `DELETE /auth/me` `GET /auth/google` `GET /auth/google/callback`
 - Jobs: `GET /jobs` `GET /jobs/:jobId` `POST /jobs` (employer) `POST /jobs/:jobId/apply` (candidate; `resumeFile`, `coverLetter`)
 - Employer (auth, employer role): `GET /employer/dashboard` `GET` `PUT /employer/profile` `GET /employer/my-jobs` `DELETE /employer/jobs/:jobId` `GET /employer/jobs/:jobId/applications` `GET /employer/applications/:applicationId/resume` `PATCH /employer/applications/:applicationId/status`
-- Health: `GET /health`
+- Health: `GET /api/v1/health`
 
 Skills go through `skills` + `job_skills`. `requirements` and `responsibilities` are `String[]` on `jobs`. Application status: `pending` | `reviewed` | `accepted` | `rejected`.
 
@@ -117,7 +121,7 @@ bun run dev
 
 **Client:** `dev`, `build`, `start`, `lint`.
 
-**Server:** `dev` (nodemon + ts-node), `build` (`prisma generate` + `tsc`), `migrate:deploy` (`prisma migrate deploy`), `start` (`node dist/server.js`), `lint`, `seed:all` (also `seed:user`, `seed:employer-profile`, `seed:jobs`, `seed:my-jobs`, `seed:applications`).
+**Server:** `dev` (nodemon + ts-node), `build` (`prisma generate` + `tsc`), `migrate:deploy` (`prisma migrate deploy`), `start` (`node dist/server.js`), `lint`, `test:smoke` (needs `SMOKE_CONFIRM_TEST_DB=yes`, see CLAUDE.md), `seed:all` (also `seed:user`, `seed:employer-profile`, `seed:jobs`, `seed:my-jobs`, `seed:applications`).
 
 ## Deploy
 
@@ -133,4 +137,4 @@ Schema changes: run `bun run migrate:deploy` in `server/` against the target dat
 
 ## Docs
 
-[CLAUDE.md](CLAUDE.md) (working rules), [docs/](docs/) (shared), [docs/client/](docs/client/), [docs/server/](docs/server/).
+[CLAUDE.md](CLAUDE.md) (working rules), [brandManifest.json](brandManifest.json) (brand copy), [docs/](docs/) (shared), [docs/client/](docs/client/), [docs/server/](docs/server/).

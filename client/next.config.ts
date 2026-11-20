@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 
-// Repo root, so the client can import shared/brand/*.json
+// Repo root, so the client can import ../brandManifest.json
 const REPO_ROOT = path.join(__dirname, "..");
 
 const nextConfig: NextConfig = {
